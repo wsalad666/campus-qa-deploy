@@ -1,0 +1,208 @@
+/* 全局按钮样式优化 */
+
+/* 主要按钮 - 增强对比度（排除link类型） */
+.el-button--primary:not(.is-link) {
+  background-color: #409eff !important;
+  border-color: #409eff !important;
+  color: #ffffff !important;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.el-button--primary:not(.is-link):hover {
+  background-color: #66b1ff !important;
+  border-color: #66b1ff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+}
+
+/* 成功按钮 */
+.el-button--success:not(.is-link) {
+  background-color: #67c23a !important;
+  border-color: #67c23a !important;
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.el-button--success:not(.is-link):hover {
+  background-color: #85ce61 !important;
+  border-color: #85ce61 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(103, 194, 58, 0.3);
+}
+
+/* 警告按钮 */
+.el-button--warning:not(.is-link) {
+  background-color: #e6a23c !important;
+  border-color: #e6a23c !important;
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.el-button--warning:not(.is-link):hover {
+  background-color: #ebb563 !important;
+  border-color: #ebb563 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(230, 162, 60, 0.3);
+}
+
+/* 危险按钮 */
+.el-button--danger:not(.is-link) {
+  background-color: #f56c6c !important;
+  border-color: #f56c6c !important;
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.el-button--danger:not(.is-link):hover {
+  background-color: #f78989 !important;
+  border-color: #f78989 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(245, 108, 108, 0.3);
+}
+
+/* 信息按钮 */
+.el-button--info:not(.is-link) {
+  background-color: #909399 !important;
+  border-color: #909399 !important;
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.el-button--info:not(.is-link):hover {
+  background-color: #a6a9ad !important;
+  border-color: #a6a9ad !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(144, 147, 153, 0.3);
+}
+
+/* 默认按钮 */
+.el-button--default:not(.is-link) {
+  background-color: #ffffff !important;
+  border-color: #dcdfe6 !important;
+  color: #606266 !important;
+  font-weight: 500;
+}
+
+.el-button--default:not(.is-link):hover {
+  color: #409eff !important;
+  border-color: #c6e2ff !important;
+  background-color: #ecf5ff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
+}
+
+/* 文本按钮 */
+.el-button--text {
+  color: #409eff !important;
+  font-weight: 500;
+}
+
+.el-button--text:hover {
+  color: #66b1ff !important;
+}
+
+/* link 类型按钮 - 最高优先级 */
+.el-button.is-link {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.el-button.is-link:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.el-button.is-link.el-button--primary {
+  color: #409eff !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+.el-button.is-link.el-button--primary:hover {
+  color: #66b1ff !important;
+}
+
+.el-button.is-link.el-button--default {
+  color: #606266 !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+.el-button.is-link.el-button--default:hover {
+  color: #409eff !important;
+}
+
+.el-button.is-link.el-button--danger {
+  color: #f56c6c !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+.el-button.is-link.el-button--danger:hover {
+  color: #f78989 !important;
+}
+
+.el-button.is-link.el-button--info {
+  color: #909399 !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+.el-button.is-link.el-button--info:hover {
+  color: #a6a9ad !important;
+}
+
+/* 小按钮优化 */
+.el-button--small {
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+/* 禁用状态 */
+.el-button.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 按钮组间距 */
+.el-button + .el-button {
+  margin-left: 12px;
+}
+
+/* 链接样式优化 */
+.el-button--primary.is-link {
+  color: #409eff !important;
+}
+
+.el-button--primary.is-link:hover {
+  color: #66b1ff !important;
+}
+
+/* 圆角按钮 */
+.el-button.is-round {
+  border-radius: 20px;
+}
+
+/* 卡片内按钮优化 */
+.el-card .el-button {
+  margin-top: 8px;
+}
+
+/* 对话框按钮优化 */
+.el-dialog__footer .el-button {
+  min-width: 80px;
+}
+
+/* 表单按钮优化 */
+.el-form .el-button {
+  margin-top: 12px;
+}
+
+/* 标签页内按钮 */
+.el-tabs .el-button {
+  margin-bottom: 8px;
+}
