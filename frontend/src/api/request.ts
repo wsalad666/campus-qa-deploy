@@ -1,4 +1,4 @@
-﻿import axios from 'axios'
+import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
 const request = axios.create({
@@ -22,13 +22,13 @@ request.interceptors.request.use(
 
 request.interceptors.response.use(
   (response) => {
-    // 妫€鏌ユ槸鍚﹂渶瑕佺画鏈焧oken锛堢鐞嗗憳绔級
+    // 检查是否需要续期token（管理员端）
     const newToken = response.headers['x-new-token']
     if (newToken && localStorage.getItem('userRole') === 'admin') {
       localStorage.setItem('adminToken', newToken)
     }
     
-    // 濡傛灉鏄?blob 绫诲瀷锛堝鏂囦欢涓嬭浇锛夛紝鐩存帴杩斿洖鍘熷鏁版嵁
+    // 如果是 blob 类型（如文件下载），直接返回原始数据
     if (response.config.responseType === 'blob') {
       return response.data
     }
@@ -38,7 +38,7 @@ request.interceptors.response.use(
     }
     if (data.code === 401) {
       const isAdmin = localStorage.getItem('userRole') === 'admin'
-      // 鍙竻闄ゅ綋鍓嶈鑹茬殑 token锛岄伩鍏嶄竴涓鑹茶繃鏈熷鑷村彟涓€涓鑹蹭篃琚己鍒堕€€鍑?
+      // 只清除当前角色的 token，避免一个角色过期导致另一个角色也被强制退出
       if (isAdmin) {
         localStorage.removeItem('adminToken')
         localStorage.removeItem('userRole')
@@ -47,18 +47,18 @@ request.interceptors.response.use(
         localStorage.removeItem('userInfo')
       }
       window.location.href = isAdmin ? '/admin/login' : '/student/login'
-      return Promise.reject(new Error(data.message || '鏈櫥褰?))
+      return Promise.reject(new Error(data.message || '未登录'))
     }
     if (data.code === 403) {
-      ElMessage.error(data.message || '鏃犳潈闄?)
-      return Promise.reject(new Error(data.message || '鏃犳潈闄?))
+      ElMessage.error(data.message || '无权限')
+      return Promise.reject(new Error(data.message || '无权限'))
     }
-    ElMessage.error(data.message || '璇锋眰澶辫触')
-    return Promise.reject(new Error(data.message || '璇锋眰澶辫触'))
+    ElMessage.error(data.message || '请求失败')
+    return Promise.reject(new Error(data.message || '请求失败'))
   },
   (error) => {
     if (error.response?.status === 401) {
-      // 鏍规嵁璇锋眰 URL 鍒ゆ柇鏄鐞嗗憳杩樻槸瀛︾敓绔殑 401锛屽彧娓呴櫎瀵瑰簲 token
+      // 根据请求 URL 判断是管理员还是学生端的 401，只清除对应 token
       const isAdminUrl = error.config?.url?.startsWith('/api/admin/')
       if (isAdminUrl) {
         localStorage.removeItem('adminToken')
@@ -68,12 +68,12 @@ request.interceptors.response.use(
         localStorage.removeItem('userInfo')
       }
     }
-    // 濡傛灉鏄?blob 涓嬭浇澶辫触锛屽皾璇曡В鏋愰敊璇俊鎭?
+    // 如果是 blob 下载失败，尝试解析错误信息
     if (error.config?.responseType === 'blob' && error.response?.data) {
-      ElMessage.error('涓嬭浇澶辫触锛岃閲嶈瘯')
+      ElMessage.error('下载失败，请重试')
       return Promise.reject(error)
     }
-    ElMessage.error(error.response?.data?.message || '鏈嶅姟鍣ㄥ紓甯?)
+    ElMessage.error(error.response?.data?.message || '服务器异常')
     return Promise.reject(error)
   }
 )
