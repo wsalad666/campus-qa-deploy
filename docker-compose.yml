@@ -1,0 +1,66 @@
+﻿version: '3.8'
+
+services:
+  # ============ MySQL ============
+  mysql:
+    image: mysql:8.0
+    container_name: campus-qa-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 
+    ports:
+      - ':3306'
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p{MYSQL_ROOT_PASSWORD}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ============ Spring Boot 后端 ============
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: campus-qa-backend
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: campus_qa
+      DB_USERNAME: root
+      DB_PASSWORD: 
+      JWT_SECRET: 
+      ADMIN_JWT_SECRET: 
+      FILE_UPLOAD_PATH: /app/uploads
+    ports:
+      - '8080:8080'
+    volumes:
+      - uploads-data:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ============ Vue 前端 + Nginx ============
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: campus-qa-frontend
+    restart: always
+    ports:
+      - ':80'
+    depends_on:
+      - backend
+
+volumes:
+  mysql-data:
+  uploads-data:
