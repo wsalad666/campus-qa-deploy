@@ -10,7 +10,7 @@ import { userApi } from '@/api/user'
 import { qaApi } from '@/api/qa'
 import { resourceApi } from '@/api/resource'
 import { useUserStore } from '@/stores/user'
-import type { QuestionVO, Resource } from '@/types'
+import type { Question, Resource } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -21,7 +21,7 @@ const profile = ref<any>(null)
 const loading = ref(false)
 const followLoading = ref(false)
 const activeTab = ref<'questions' | 'resources'>('questions')
-const questions = ref<QuestionVO[]>([])
+const questions = ref<Question[]>([])
 const resources = ref<Resource[]>([])
 const contentLoading = ref(false)
 

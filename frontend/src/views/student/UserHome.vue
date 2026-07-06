@@ -12,7 +12,7 @@ import { userApi } from '@/api/user'
 import { usePagination } from '@/composables/usePagination'
 import type { UserProfile, Question, Resource } from '@/types'
 import { ElMessage } from 'element-plus'
-import { Shield } from '@element-plus/icons-vue'
+import { Stamp } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -180,7 +180,7 @@ onMounted(() => {
             <h3 class="user-name">
               {{ profile.user.nickname || profile.user.username }}
               <el-tag v-if="profile.user.role === 1" type="warning" size="small" effect="dark" class="admin-badge">
-                <el-icon style="margin-right: 2px"><Shield /></el-icon>
+                <el-icon style="margin-right: 2px"><Stamp /></el-icon>
                 管理员
               </el-tag>
             </h3>
