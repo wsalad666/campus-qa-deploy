@@ -451,12 +451,12 @@ onMounted(() => {
                     <template v-if="detail.status === 2">
                       <el-tag type="info" size="small">已关闭</el-tag>
                       <el-button
-                        type="success"
+                        type="info"
                         size="small"
-                        :loading="questionActionLoading === 'reopen'"
-                        @click="handleReopenQuestion"
+                        :loading="questionActionLoading === 'hide'"
+                        @click="handleHideQuestion"
                       >
-                        重新打开
+                        设为私密
                       </el-button>
                     </template>
                     <!-- 已设私密 -->
