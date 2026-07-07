@@ -1,4 +1,4 @@
-﻿package com.example.newtrial2.config;
+package com.example.newtrial2.config;
 
 import com.example.newtrial2.common.AdminAuthInterceptor;
 import com.example.newtrial2.common.JwtAuthInterceptor;
