@@ -1,4 +1,4 @@
-package com.example.newtrial2.entity;
+﻿package com.example.newtrial2.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
@@ -20,6 +20,7 @@ public class Resource {
 
     private String description;
 
+    @TableField(exist = false)
     private String category;
 
     private String fileUrl;
@@ -30,7 +31,9 @@ public class Resource {
 
     private Integer downloadCount = 0;
 
-    /** 资源类型：0=试卷, 1=习题, 2=笔记, 3=课件 */
+    /**
+     * 资源类型：0=试卷, 1=习题, 2=笔记, 3=课件
+     */
     private Integer resourceType;
 
     @TableField(fill = FieldFill.INSERT)
