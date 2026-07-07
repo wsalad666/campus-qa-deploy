@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { formatDateTime } from '@/utils/time'
 import { ref, onMounted, watch } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRoute } from 'vue-router'
 import AppHeader from '@/components/AppHeader.vue'
 import AppSidebar from '@/components/AppSidebar.vue'
@@ -12,6 +13,7 @@ import FileUpload from '@/components/FileUpload.vue'
 import { resourceApi } from '@/api/resource'
 import { adminApi } from '@/api/admin'
 import { usePagination } from '@/composables/usePagination'
+import { userApi } from '@/api/user'
 import type { Resource, Course } from '@/types'
 
 const route = useRoute()
