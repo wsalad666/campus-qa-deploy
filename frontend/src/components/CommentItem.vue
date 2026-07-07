@@ -53,6 +53,7 @@
         :answer-id="answerId"
         :depth="depth + 1"
         @reply="(parentId: number, replyToId: number, nickname: string) => emit('reply', parentId, replyToId, nickname)"
+        @deleted="emit('deleted')"
       />
     </div>
   </div>

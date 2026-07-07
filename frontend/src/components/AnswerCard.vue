@@ -125,7 +125,7 @@ import ImagePreview from '@/components/ImagePreview.vue'
 import CommentItem from '@/components/CommentItem.vue'
 import { useUserStore } from '@/stores/user'
 import { qaApi } from '@/api/qa'
-import type { Answer } from '@/types'
+import type { Answer, Comment } from '@/types'
 
 const props = defineProps<{
   answer: Answer
@@ -285,13 +285,22 @@ async function submitComment(parentId: number, replyToId: number, _replyToNickna
   }
 }
 
+function countAllComments(commentList: Comment[] | undefined): number {
+  if (!commentList) return 0
+  let count = commentList.length
+  for (const c of commentList) {
+    if (c.children) count += countAllComments(c.children)
+  }
+  return count
+}
+
 async function fetchComments() {
   try {
-    const res: any = await qaApi.getQuestionDetail(props.answer.questionId)
-    const updatedAnswer = res?.answers?.find((a: Answer) => a.id === props.answer.id)
+    const res = await qaApi.getQuestionDetail(props.answer.questionId)
+    const updatedAnswer = res?.answers?.find((a) => a.id === props.answer.id)
     if (updatedAnswer) {
       props.answer.comments = updatedAnswer.comments
-      props.answer.commentCount = updatedAnswer.commentCount ?? (updatedAnswer.comments?.length || 0)
+      props.answer.commentCount = countAllComments(updatedAnswer.comments)
     }
   } catch {
     // ignore
