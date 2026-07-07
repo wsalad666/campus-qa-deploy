@@ -294,7 +294,7 @@ async function handleUnhideQuestion() {
   try {
     await qaApi.unhideQuestion(questionId)
     detail.value.status = 0
-    ElMessage.success('已取消私密')
+    ElMessage.success('已设为公开')
   } catch {
     // error handled by interceptor
   } finally {
@@ -449,19 +449,11 @@ onMounted(() => {
                   <template v-if="isQuestionOwner">
                     <el-button
                       size="small"
-                      :type="detail.status === 2 ? 'success' : 'warning'"
-                      :loading="questionActionLoading === (detail.status === 2 ? 'reopen' : 'close')"
-                      @click="detail.status === 2 ? handleReopenQuestion() : handleCloseQuestion()"
-                    >
-                      {{ detail.status === 2 ? '打开提问' : '关闭提问' }}
-                    </el-button>
-                    <el-button
-                      size="small"
                       :type="detail.status === 3 ? 'success' : 'info'"
                       :loading="questionActionLoading === (detail.status === 3 ? 'unhide' : 'hide')"
                       @click="detail.status === 3 ? handleUnhideQuestion() : handleHideQuestion()"
                     >
-                      {{ detail.status === 3 ? '设为公开' : '设为私密' }}
+                      {{ detail.status === 3 ? '公开' : '隐藏' }}
                     </el-button>
                     <el-button
                       type="danger"
