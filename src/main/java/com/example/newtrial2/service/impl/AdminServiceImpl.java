@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -140,13 +141,19 @@ public class AdminServiceImpl implements AdminService {
         Page<Question> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
         if (keyword != null && !keyword.isBlank()) {
-            wrapper.and(w -> w
-                .like(Question::getTitle, keyword)
-                .or()
-                .like(Question::getContent, keyword)
-                .or()
-                .eq(Question::getId, safeParseLong(keyword))
-            );
+            LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
+            userWrapper.like(User::getNickname, keyword)
+                    .or().like(User::getStudentNo, keyword);
+            List<User> matchedUsers = userMapper.selectList(userWrapper);
+            List<Long> matchedUserIds = matchedUsers.stream().map(User::getId).collect(Collectors.toList());
+            wrapper.and(w -> {
+                w.like(Question::getTitle, keyword)
+                 .or().like(Question::getContent, keyword)
+                 .or().eq(Question::getId, safeParseLong(keyword));
+                if (!matchedUserIds.isEmpty()) {
+                    w.or().in(Question::getUserId, matchedUserIds);
+                }
+            });
         }
         wrapper.orderByDesc(Question::getCreateTime);
         IPage<Question> result = questionMapper.selectPage(page, wrapper);
@@ -185,13 +192,19 @@ public class AdminServiceImpl implements AdminService {
         Page<Resource> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Resource> wrapper = new LambdaQueryWrapper<>();
         if (keyword != null && !keyword.isBlank()) {
-            wrapper.and(w -> w
-                .like(Resource::getTitle, keyword)
-                .or()
-                .like(Resource::getDescription, keyword)
-                .or()
-                .eq(Resource::getId, safeParseLong(keyword))
-            );
+            LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
+            userWrapper.like(User::getNickname, keyword)
+                    .or().like(User::getStudentNo, keyword);
+            List<User> matchedUsers = userMapper.selectList(userWrapper);
+            List<Long> matchedUserIds = matchedUsers.stream().map(User::getId).collect(Collectors.toList());
+            wrapper.and(w -> {
+                w.like(Resource::getTitle, keyword)
+                 .or().like(Resource::getDescription, keyword)
+                 .or().eq(Resource::getId, safeParseLong(keyword));
+                if (!matchedUserIds.isEmpty()) {
+                    w.or().in(Resource::getUserId, matchedUserIds);
+                }
+            });
         }
         wrapper.orderByDesc(Resource::getCreateTime);
         IPage<Resource> result = resourceMapper.selectPage(page, wrapper);
@@ -418,11 +431,18 @@ public class AdminServiceImpl implements AdminService {
         Page<Answer> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Answer> wrapper = new LambdaQueryWrapper<>();
         if (keyword != null && !keyword.isBlank()) {
-            wrapper.and(w -> w
-                .like(Answer::getContent, keyword)
-                .or()
-                .eq(Answer::getId, safeParseLong(keyword))
-            );
+            LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
+            userWrapper.like(User::getNickname, keyword)
+                    .or().like(User::getStudentNo, keyword);
+            List<User> matchedUsers = userMapper.selectList(userWrapper);
+            List<Long> matchedUserIds = matchedUsers.stream().map(User::getId).collect(Collectors.toList());
+            wrapper.and(w -> {
+                w.like(Answer::getContent, keyword)
+                 .or().eq(Answer::getId, safeParseLong(keyword));
+                if (!matchedUserIds.isEmpty()) {
+                    w.or().in(Answer::getUserId, matchedUserIds);
+                }
+            });
         }
         wrapper.orderByDesc(Answer::getCreateTime);
         IPage<Answer> result = answerMapper.selectPage(page, wrapper);
