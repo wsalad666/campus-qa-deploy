@@ -56,10 +56,27 @@
           <span class="admin-header-title">{{ title }}</span>
         </div>
         <div class="admin-header-right">
-          <el-avatar :size="32" :src="resolveAvatarUrl(adminStore.adminInfo?.avatar)">
-            {{ adminStore.adminInfo?.nickname?.charAt(0) || '管' }}
-          </el-avatar>
-          <span class="admin-nickname" @click="goToProfile" style="cursor: pointer">{{ adminStore.adminInfo?.nickname || '管理员' }}</span>
+          <el-dropdown trigger="click">
+            <span class="admin-user-dropdown">
+              <el-avatar :size="32" :src="resolveAvatarUrl(adminStore.adminInfo?.avatar)">
+                {{ adminStore.adminInfo?.nickname?.charAt(0) || '管' }}
+              </el-avatar>
+              <span class="admin-nickname">{{ adminStore.adminInfo?.nickname || '管理员' }}</span>
+              <el-icon class="dropdown-arrow"><ArrowDown /></el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="goToProfile">
+                  <el-icon><UserFilled /></el-icon>
+                  个人主页
+                </el-dropdown-item>
+                <el-dropdown-item divided @click="handleLogout">
+                  <el-icon><SwitchButton /></el-icon>
+                  退出登录
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </el-header>
       <el-main class="admin-main">
@@ -77,7 +94,7 @@ import { adminApi } from '@/api/admin'
 import { ElMessageBox } from 'element-plus'
 import {
   DataAnalysis, Reading, QuestionFilled, FolderOpened, ChatLineSquare,
-  User, WarningFilled, Document, SwitchButton, UserFilled
+  User, WarningFilled, Document, SwitchButton, UserFilled, ArrowDown
 } from '@element-plus/icons-vue'
 
 defineProps<{ title: string }>()
@@ -177,8 +194,21 @@ function resolveAvatarUrl(avatar?: string): string {
   font-size: 14px;
 }
 
+.admin-user-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #606266;
+  font-size: 14px;
+}
+
+.dropdown-arrow {
+  font-size: 12px;
+  color: #909399;
+}
 .admin-nickname {
-  margin-left: 4px;
+  margin-left: 0;
 }
 
 .admin-main {
