@@ -1,4 +1,4 @@
-﻿version: '3.8'
+version: '3.8'
 
 services:
   # ============ MySQL ============
@@ -9,7 +9,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 
     ports:
-      - ':3306'
+      - '3306:3306'
     volumes:
       - mysql-data:/var/lib/mysql
       - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
@@ -57,7 +57,7 @@ services:
     container_name: campus-qa-frontend
     restart: always
     ports:
-      - ':80'
+      - '80:80'
     depends_on:
       - backend
 
