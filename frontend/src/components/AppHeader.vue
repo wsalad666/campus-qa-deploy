@@ -3,7 +3,7 @@
     <div class="header-left">
       <router-link to="/student/home" class="logo">
         <span class="logo-icon">🎓</span>
-        <span class="logo-text">校园互助答疑</span>
+        <span class="logo-text">校园互助答疑平台</span>
       </router-link>
     </div>
 
