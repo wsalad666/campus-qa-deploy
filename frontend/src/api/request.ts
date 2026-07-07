@@ -21,15 +21,26 @@ request.interceptors.request.use(
 )
 
 request.interceptors.response.use(
-  (response) => {
+  async (response) => {
     // 检查是否需要续期token（管理员端）
     const newToken = response.headers['x-new-token']
     if (newToken && localStorage.getItem('userRole') === 'admin') {
       localStorage.setItem('adminToken', newToken)
     }
     
-    // 如果是 blob 类型（如文件下载），直接返回原始数据
+    // 如果是 blob 类型（如文件下载），先检查是否为 JSON 错误响应
     if (response.config.responseType === 'blob') {
+      const ct = response.headers['content-type'] || ''
+      if (ct.includes('application/json')) {
+        try {
+          const text = await response.data.text()
+          const data = JSON.parse(text)
+          if (data.code !== 200) {
+            ElMessage.error(data.message || '下载失败')
+            return Promise.reject(new Error(data.message || '下载失败'))
+          }
+        } catch { /* 解析失败，继续按文件处理 */ }
+      }
       return response.data
     }
     const data = response.data

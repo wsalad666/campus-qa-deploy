@@ -71,9 +71,15 @@ export const userApi = {
   checkCollected: (params: { folderId: number; targetType: number; targetId: number }): Promise<any> =>
     request.get('/api/user/collect/check', { params }),
 
+  isCollectedAny: (targetType: number, targetId: number): Promise<any> =>
+    request.get('/api/user/collect/check-any', { params: { targetType, targetId } }),
+
   moveCollect: (relationId: number, folderId: number): Promise<any> =>
     request.put(`/api/user/collect/move/${relationId}`, { folderId }),
 
   removeCollect: (relationId: number): Promise<any> =>
     request.delete(`/api/user/collect/${relationId}`),
+
+  removeCollectByTarget: (targetType: number, targetId: number): Promise<any> =>
+    request.delete('/api/user/collect/target', { params: { targetType, targetId } }),
 }

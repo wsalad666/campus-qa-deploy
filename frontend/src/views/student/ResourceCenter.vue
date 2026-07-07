@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatDateTime } from '@/utils/time'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from '@/components/AppHeader.vue'
@@ -122,7 +123,23 @@ function onResourcePreview(resource: Resource) {
   previewDialogVisible.value = true
 }
 
-function onResourceCollect(resource: Resource) {
+async function onResourceCollect(resource: Resource) {
+  try {
+    const res = await userApi.isCollectedAny(2, resource.id)
+    if (res) {
+      await ElMessageBox.confirm('确定取消收藏该资源？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+      await userApi.removeCollectByTarget(2, resource.id)
+      ElMessage.success('已取消收藏')
+      fetchResources()
+      return
+    }
+  } catch {
+    // 未收藏或取消失败，继续打开收藏对话框
+  }
   collectTargetType.value = 2
   collectTargetId.value = resource.id
   collectDialogVisible.value = true
@@ -140,11 +157,7 @@ function formatFileSize(bytes: number): string {
   return size.toFixed(1) + ' ' + units[i]
 }
 
-function formatTime(time: string) {
-  if (!time) return ''
-  const d = new Date(time)
-  return d.toLocaleString('zh-CN')
-}
+function formatTime(time: string) { return formatDateTime(time) }
 
 watch([pageNum, pageSize], () => {
   fetchResources()

@@ -1,17 +1,31 @@
 <script setup lang="ts">
+import { formatDateTime } from '@/utils/time'
 import { ref, onMounted, watch, computed } from 'vue'
+import { formatDateTime } from '@/utils/time'
 import { useRoute, useRouter } from 'vue-router'
+import { formatDateTime } from '@/utils/time'
 import AppHeader from '@/components/AppHeader.vue'
+import { formatDateTime } from '@/utils/time'
 import Pagination from '@/components/Pagination.vue'
+import { formatDateTime } from '@/utils/time'
 import QuestionCard from '@/components/QuestionCard.vue'
+import { formatDateTime } from '@/utils/time'
 import ResourceCard from '@/components/ResourceCard.vue'
+import { formatDateTime } from '@/utils/time'
 import UserAvatar from '@/components/UserAvatar.vue'
+import { formatDateTime } from '@/utils/time'
 import { qaApi } from '@/api/qa'
+import { formatDateTime } from '@/utils/time'
 import { resourceApi } from '@/api/resource'
+import { formatDateTime } from '@/utils/time'
 import { userApi } from '@/api/user'
+import { formatDateTime } from '@/utils/time'
 import { usePagination } from '@/composables/usePagination'
+import { formatDateTime } from '@/utils/time'
 import type { UserProfile, Question, Resource } from '@/types'
+import { formatDateTime } from '@/utils/time'
 import { ElMessage } from 'element-plus'
+import { formatDateTime } from '@/utils/time'
 import { Stamp } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -72,11 +86,7 @@ function formatFileSize(bytes: number): string {
   return size.toFixed(1) + ' ' + units[i]
 }
 
-function formatTime(time: string) {
-  if (!time) return ''
-  const d = new Date(time)
-  return d.toLocaleString('zh-CN')
-}
+function formatTime(time: string) { return formatDateTime(time) }
 
 function getResourceTypeLabel(type: number | null): string {
   const labels = ['试卷', '习题', '笔记', '课件']

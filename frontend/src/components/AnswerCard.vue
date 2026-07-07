@@ -105,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatRelativeTime } from '@/utils/time'
 import { ref, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChatDotRound, WarningFilled, Pointer } from '@element-plus/icons-vue'

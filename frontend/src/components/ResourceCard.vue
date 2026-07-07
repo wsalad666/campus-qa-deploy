@@ -62,10 +62,15 @@
 </template>
 
 <script setup lang="ts">
+import { formatDateTime } from '@/utils/time'
 import { ref, computed } from 'vue'
+import { formatDateTime } from '@/utils/time'
 import { ElMessage } from 'element-plus'
+import { formatDateTime } from '@/utils/time'
 import { Star, Download } from '@element-plus/icons-vue'
+import { formatDateTime } from '@/utils/time'
 import { resourceApi } from '@/api/resource'
+import { formatDateTime } from '@/utils/time'
 import type { Resource } from '@/types'
 
 const props = defineProps<{
@@ -127,7 +132,7 @@ async function handleDownload() {
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = props.resource.title || 'download'
+    link.download = (props.resource.title || 'download') + '.' + (props.resource.fileType || '')
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -141,15 +146,7 @@ async function handleDownload() {
   }
 }
 
-function formatTime(time: string) {
-  if (!time) return ''
-  const d = new Date(time)
-  const now = new Date()
-  const diff = now.getTime() - d.getTime()
-  const days = Math.floor(diff / 86400000)
-
-  if (days < 1) return '今天'
-  if (days < 30) return `${days}天前`
+function formatTime(time: string) { return formatDateTime(time) }天前`
   return d.toLocaleDateString('zh-CN')
 }
 </script>

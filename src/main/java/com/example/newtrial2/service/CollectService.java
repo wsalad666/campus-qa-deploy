@@ -27,4 +27,7 @@ public interface CollectService {
     void moveCollect(Long userId, Long relationId, Long targetFolderId);
     /** 取消收藏 */
     void removeCollect(Long userId, Long relationId);
+    void removeCollectByTarget(Long userId, Integer targetType, Long targetId);
+    /** 鍙栨秷鏀惰棌锛堟寜鐩爣锛?*/
+    void removeCollectByTarget(Long userId, Integer targetType, Long targetId);
 }

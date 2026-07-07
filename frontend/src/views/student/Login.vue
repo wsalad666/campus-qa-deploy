@@ -220,7 +220,6 @@ async function handleRegister() {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  overflow: hidden;
 }
 
 /* 有背景图时的暗色遮罩 */
@@ -241,6 +240,7 @@ async function handleRegister() {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 16px;
+  overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 

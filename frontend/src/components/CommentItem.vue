@@ -59,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatRelativeTime } from '@/utils/time'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'

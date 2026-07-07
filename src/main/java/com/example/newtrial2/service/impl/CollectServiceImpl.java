@@ -257,4 +257,17 @@ public class CollectServiceImpl implements CollectService {
         }
         relationMapper.deleteById(relationId);
     }
+
+    @Override
+    public void removeCollectByTarget(Long userId, Integer targetType, Long targetId) {
+        List<UserCollectRelation> relations = relationMapper.selectList(
+            new LambdaQueryWrapper<UserCollectRelation>()
+                .eq(UserCollectRelation::getUserId, userId)
+                .eq(UserCollectRelation::getTargetType, targetType)
+                .eq(UserCollectRelation::getTargetId, targetId));
+        for (UserCollectRelation rel : relations) {
+            relationMapper.deleteById(rel.getId());
+        }
+    }
+
 }
