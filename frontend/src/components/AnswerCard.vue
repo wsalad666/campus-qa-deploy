@@ -64,6 +64,17 @@
         <el-icon><WarningFilled /></el-icon>
         举报
       </el-button>
+
+      <el-button
+        v-if="canDeleteAnswer"
+        type="danger"
+        size="small"
+        plain
+        @click="handleDeleteAnswer"
+      >
+        <el-icon><Delete /></el-icon>
+        删除
+      </el-button>
     </div>
 
     <!-- 评论区 -->
@@ -90,7 +101,7 @@
           :comment="c"
           :answer-id="answer.id"
           @reply="handleReply"
-          @deleted="fetchComments"
+          @deleted="answer.commentCount--"
         />
       </div>
       <el-empty v-else description="暂无评论" :image-size="60" />
@@ -108,7 +119,8 @@
 import { formatRelativeTime } from '@/utils/time'
 import { ref, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { ChatDotRound, WarningFilled, Pointer } from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
+import { ChatDotRound, WarningFilled, Pointer, Delete } from '@element-plus/icons-vue'
 import ImagePreview from '@/components/ImagePreview.vue'
 import CommentItem from '@/components/CommentItem.vue'
 import { useUserStore } from '@/stores/user'
@@ -194,6 +206,8 @@ watch(contentRef, async () => {
 })
 
 const isOwner = userStore.userInfo?.id === props.questionUserId
+const isAnswerOwner = userStore.userInfo?.id === props.answer.userId
+const canDeleteAnswer = isOwner || isAnswerOwner
 
 function goToUser(userId: number) {
   router.push(`/student/user/${userId}`)
@@ -211,6 +225,20 @@ function resolveContentImages(html: string): string {
     if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) return match
     return match.replace(src, '' + (src.startsWith('/') ? '' : '/') + src)
   })
+}
+
+async function handleDeleteAnswer() {
+  try {
+    await ElMessageBox.confirm(
+      '确定要删除这条回答吗？删除后不可恢复，所有评论也会一并删除。',
+      '确认删除',
+      { confirmButtonText: '确定删除', cancelButtonText: '取消', type: 'warning' }
+    )
+  } catch { return }
+  try {
+    await qaApi.deleteAnswer(props.answer.id)
+    emit('refresh')
+  } catch { /* handled by interceptor */ }
 }
 
 async function handleLike() {

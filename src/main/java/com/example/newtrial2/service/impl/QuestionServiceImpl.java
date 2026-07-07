@@ -40,9 +40,10 @@ public class QuestionServiceImpl implements QuestionService {
     private final FavoriteService favoriteService;
     private final CollectService collectService;
     private final CommentService commentService;
+    private final CommentMapper commentMapper;
     private final NotificationMapper notificationMapper;
 
-    public QuestionServiceImpl(QuestionMapper questionMapper, AnswerMapper answerMapper,
+    public QuestionServiceImpl(QuestionMapper questionMapper, CommentMapper commentMapper, AnswerMapper answerMapper,
                                UserMapper userMapper, CourseMapper courseMapper,
                                QuestionLikeMapper questionLikeMapper,
                                FavoriteService favoriteService,
@@ -57,6 +58,7 @@ public class QuestionServiceImpl implements QuestionService {
         this.favoriteService = favoriteService;
         this.collectService = collectService;
         this.commentService = commentService;
+        this.commentMapper = commentMapper;
         this.notificationMapper = notificationMapper;
     }
 
@@ -478,6 +480,37 @@ public class QuestionServiceImpl implements QuestionService {
         notification.setSenderNickname(senderNickname);
         notification.setIsDeletable(1);
         notificationMapper.insert(notification);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAnswer(Long userId, Long answerId) {
+        Answer answer = answerMapper.selectById(answerId);
+        if (answer == null) {
+            throw new BusinessException("回答不存在");
+        }
+        // 检查权限：回答者本人 OR 提问者
+        Question question = questionMapper.selectById(answer.getQuestionId());
+        if (question == null) {
+            throw new BusinessException("关联提问不存在");
+        }
+        boolean isAnswerOwner = answer.getUserId().equals(userId);
+        boolean isQuestionOwner = question.getUserId().equals(userId);
+        if (!isAnswerOwner && !isQuestionOwner) {
+            throw new BusinessException(403, "无权删除此回答");
+        }
+        // 级联删除该回答的所有评论
+        LambdaQueryWrapper<Comment> commentWrapper = new LambdaQueryWrapper<>();
+        commentWrapper.eq(Comment::getAnswerId, answerId);
+        commentMapper.delete(commentWrapper);
+        // 删除回答
+        answerMapper.deleteById(answerId);
+        // 更新问题的回答数
+        LambdaQueryWrapper<Answer> countWrapper = new LambdaQueryWrapper<>();
+        countWrapper.eq(Answer::getQuestionId, answer.getQuestionId());
+        long remaining = answerMapper.selectCount(countWrapper);
+        question.setAnswerCount((int) remaining);
+        questionMapper.updateById(question);
     }
 
     @Override

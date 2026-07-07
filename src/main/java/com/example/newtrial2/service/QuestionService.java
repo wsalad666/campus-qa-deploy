@@ -27,6 +27,8 @@ public interface QuestionService {
 
     void deleteQuestion(Long userId, Long questionId);
 
+    void deleteAnswer(Long userId, Long answerId);
+
     void closeQuestion(Long userId, Long questionId);
 
     void hideQuestion(Long userId, Long questionId);

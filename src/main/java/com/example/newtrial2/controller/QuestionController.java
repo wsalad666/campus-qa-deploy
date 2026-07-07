@@ -88,6 +88,16 @@ public class QuestionController {
         return Result.success();
     }
 
+    
+    @Operation(summary = "删除回答（回答者本人或提问者可删）")
+    @DeleteMapping("/answer/{answerId}")
+    public Result<Void> deleteAnswer(HttpServletRequest httpRequest,
+                                      @Parameter(description = "回答ID") @PathVariable Long answerId) {
+        Long userId = (Long) httpRequest.getAttribute("userId");
+        questionService.deleteAnswer(userId, answerId);
+        return Result.success();
+    }
+
     @Operation(summary = "删除评论（学生自主删除）")
     @DeleteMapping("/comment/{commentId}")
     public Result<Void> deleteComment(HttpServletRequest httpRequest,

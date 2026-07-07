@@ -64,6 +64,9 @@ export const qaApi = {
   deleteComment: (commentId: number): Promise<any> =>
     request.delete(`/api/qa/comment/${commentId}`),
 
+  deleteAnswer: (answerId: number): Promise<any> =>
+    request.delete(`/api/qa/answer/${answerId}`),
+
   deleteQuestion: (questionId: number): Promise<any> =>
     request.delete(`/api/qa/question/${questionId}`),
 
