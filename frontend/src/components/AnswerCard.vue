@@ -101,7 +101,7 @@
           :comment="c"
           :answer-id="answer.id"
           @reply="handleReply"
-          @deleted="answer.commentCount--"
+          @deleted="fetchComments"
         />
       </div>
       <el-empty v-else description="暂无评论" :image-size="60" />
@@ -291,6 +291,7 @@ async function fetchComments() {
     const updatedAnswer = res?.answers?.find((a: Answer) => a.id === props.answer.id)
     if (updatedAnswer) {
       props.answer.comments = updatedAnswer.comments
+      props.answer.commentCount = updatedAnswer.commentCount ?? (updatedAnswer.comments?.length || 0)
     }
   } catch {
     // ignore
