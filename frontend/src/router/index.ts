@@ -128,6 +128,8 @@ router.beforeEach((to, _from, next) => {
   const adminStore = useAdminStore()
 
   if (to.meta.requiresAuth) {
+    const role = localStorage.getItem('userRole')
+    if (role === 'admin') return next() // 管理员跳过学生认证
     userStore.restoreFromStorage()
     if (!userStore.isLoggedIn || !userStore.token) {
       return next('/student/login')
