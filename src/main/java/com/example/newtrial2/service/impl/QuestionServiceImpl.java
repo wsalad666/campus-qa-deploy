@@ -479,13 +479,11 @@ public class QuestionServiceImpl implements QuestionService {
         if (!question.getUserId().equals(userId)) {
             throw new BusinessException(403, "无权删除他人提问");
         }
-        // 检查是否有回答
-        Long answerCount = answerMapper.selectCount(
-            new LambdaQueryWrapper<Answer>().eq(Answer::getQuestionId, questionId));
-        if (answerCount > 0) {
-            throw new BusinessException("该提问已有回答，无法彻底删除，请使用「关闭提问」或「设为私密」");
-        }
-        // 删除关联的点赞
+        // 级联删除回答
+        LambdaQueryWrapper<Answer> answerWrapper = new LambdaQueryWrapper<>();
+        answerWrapper.eq(Answer::getQuestionId, questionId);
+        answerMapper.delete(answerWrapper);
+        // 删除问题点赞
         LambdaQueryWrapper<QuestionLike> likeWrapper = new LambdaQueryWrapper<>();
         likeWrapper.eq(QuestionLike::getQuestionId, questionId);
         questionLikeMapper.delete(likeWrapper);
