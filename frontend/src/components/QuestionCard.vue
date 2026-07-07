@@ -66,7 +66,7 @@ function goToUser() {
 function resolveAvatarUrl(avatar?: string): string {
   if (!avatar) return ''
   if (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('data:')) return avatar
-  return 'http://localhost:8080' + (avatar.startsWith('/') ? '' : '/') + avatar
+  return '' + (avatar.startsWith('/') ? '' : '/') + avatar
 }
 
 function formatTime(time: string) {

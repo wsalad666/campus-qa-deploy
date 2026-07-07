@@ -173,7 +173,7 @@ function setupImageClick() {
 function resolveImageUrl(src: string): string {
   if (!src) return ''
   if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) return src
-  return 'http://localhost:8080' + (src.startsWith('/') ? '' : '/') + src
+  return '' + (src.startsWith('/') ? '' : '/') + src
 }
 
 function openAnswerImagePreview(images: string[], index: number) {
@@ -201,14 +201,14 @@ function goToUser(userId: number) {
 function resolveAvatarUrl(avatar?: string): string {
   if (!avatar) return ''
   if (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('data:')) return avatar
-  return 'http://localhost:8080' + (avatar.startsWith('/') ? '' : '/') + avatar
+  return '' + (avatar.startsWith('/') ? '' : '/') + avatar
 }
 
 function resolveContentImages(html: string): string {
   if (!html) return ''
   return html.replace(/<img[^>]+src=["']([^"']+)["']/gi, (match, src) => {
     if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) return match
-    return match.replace(src, 'http://localhost:8080' + (src.startsWith('/') ? '' : '/') + src)
+    return match.replace(src, '' + (src.startsWith('/') ? '' : '/') + src)
   })
 }
 

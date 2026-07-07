@@ -28,7 +28,7 @@ const resolvedSrc = computed(() => {
   if (props.src.startsWith('http://') || props.src.startsWith('https://') || props.src.startsWith('data:')) {
     return props.src
   }
-  return 'http://localhost:8080' + (props.src.startsWith('/') ? '' : '/') + props.src
+  return '' + (props.src.startsWith('/') ? '' : '/') + props.src
 })
 </script>
 

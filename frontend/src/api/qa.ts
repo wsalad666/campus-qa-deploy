@@ -6,7 +6,7 @@ export const qaApi = {
     const formData = new FormData()
     formData.append('file', file)
     const token = localStorage.getItem('token')
-    return axios.post('http://localhost:8080/api/upload/image', formData, {
+    return axios.post('/api/upload/image', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),

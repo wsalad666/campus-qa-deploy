@@ -76,7 +76,7 @@ function extractImages(html: string): string[] {
 function resolveImageUrl(src: string): string {
   if (!src) return ''
   if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) return src
-  return 'http://localhost:8080' + (src.startsWith('/') ? '' : '/') + src
+  return '' + (src.startsWith('/') ? '' : '/') + src
 }
 
 function resolveContentImages(html: string): string {

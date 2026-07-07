@@ -77,7 +77,7 @@ function goBack() {
 function resolveAvatar(avatar: string | null): string {
   if (!avatar) return ''
   if (avatar.startsWith('http')) return avatar
-  return 'http://localhost:8080' + (avatar.startsWith('/') ? '' : '/') + avatar
+  return '' + (avatar.startsWith('/') ? '' : '/') + avatar
 }
 
 onMounted(() => {

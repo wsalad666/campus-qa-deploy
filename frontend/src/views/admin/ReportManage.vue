@@ -269,7 +269,7 @@ function resolveContentImages(html: string): string {
   if (!html) return ''
   return html.replace(/<img[^>]+src=["']([^"']+)["']/gi, (match, src) => {
     if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) return match
-    return match.replace(src, 'http://localhost:8080' + (src.startsWith('/') ? '' : '/') + src)
+    return match.replace(src, '' + (src.startsWith('/') ? '' : '/') + src)
   })
 }
 

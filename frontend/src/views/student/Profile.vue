@@ -375,7 +375,7 @@ onMounted(async () => {
         <div class="avatar-preview">
           <el-avatar
             :size="120"
-            :src="avatarPreviewUrl || (userInfo?.avatar ? 'http://localhost:8080' + userInfo?.avatar : '')"
+            :src="avatarPreviewUrl || (userInfo?.avatar ? '' + userInfo?.avatar : '')"
           >
             <span class="avatar-letter-lg">{{ editNickname?.charAt(0) || 'U' }}</span>
           </el-avatar>

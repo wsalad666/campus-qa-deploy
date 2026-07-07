@@ -148,7 +148,7 @@ const previewUrl = computed(() => {
 const downloadUrl = computed(() => {
   if (!props.fileUrl) return ''
   if (props.fileUrl.startsWith('http')) return props.fileUrl
-  return 'http://localhost:8080' + (props.fileUrl.startsWith('/') ? '' : '/') + props.fileUrl
+  return '' + (props.fileUrl.startsWith('/') ? '' : '/') + props.fileUrl
 })
 
 let timeoutId: ReturnType<typeof setTimeout> | null = null
