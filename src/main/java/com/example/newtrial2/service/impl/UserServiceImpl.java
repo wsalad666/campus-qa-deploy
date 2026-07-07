@@ -1,6 +1,7 @@
 package com.example.newtrial2.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.example.newtrial2.common.JwtUtil;
 import com.example.newtrial2.dto.request.LoginRequest;
 import com.example.newtrial2.dto.request.RegisterRequest;
@@ -86,16 +87,18 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
+        LambdaUpdateWrapper<User> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(User::getId, userId);
         if (request.getNickname() != null) {
-            user.setNickname(request.getNickname());
+            wrapper.set(User::getNickname, request.getNickname());
         }
         if (request.getAvatar() != null) {
-            user.setAvatar(request.getAvatar());
+            wrapper.set(User::getAvatar, request.getAvatar());
         }
         if (request.getSignature() != null) {
-            user.setSignature(request.getSignature());
+            wrapper.set(User::getSignature, request.getSignature());
         }
-        userMapper.updateById(user);
+        userMapper.update(null, wrapper);
     }
 
     @Override
