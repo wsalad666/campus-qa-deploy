@@ -451,6 +451,14 @@ onMounted(() => {
                     <template v-if="detail.status === 2">
                       <el-tag type="info" size="small">已关闭</el-tag>
                       <el-button
+                        type="success"
+                        size="small"
+                        :loading="questionActionLoading === 'reopen'"
+                        @click="handleReopenQuestion"
+                      >
+                        重新打开
+                      </el-button>
+                      <el-button
                         type="info"
                         size="small"
                         :loading="questionActionLoading === 'hide'"
