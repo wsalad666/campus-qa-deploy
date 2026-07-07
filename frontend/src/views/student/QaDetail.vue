@@ -130,8 +130,21 @@ async function fetchDetail() {
 
 async function toggleFavorite() {
   if (!detail.value || favoriteLoading.value) return
-  // Open collect folder selection dialog instead of direct toggle
-  collectDialogVisible.value = true
+  if (detail.value.isFavorited) {
+    // 已收藏：确认取消收藏
+    try {
+      await ElMessageBox.confirm('确定取消收藏？', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' })
+      favoriteLoading.value = true
+      await userApi.toggleFavorite({ targetId: questionId, type: 1 })
+      detail.value.isFavorited = false
+      detail.value.favoriteCount = Math.max(0, (detail.value.favoriteCount || 0) - 1)
+      ElMessage.success('已取消收藏')
+    } catch { /* user cancelled or error */ }
+    finally { favoriteLoading.value = false }
+  } else {
+    // 未收藏：打开收藏文件夹选择
+    collectDialogVisible.value = true
+  }
 }
 
 function onCollectDone() {
