@@ -15,6 +15,6 @@ public interface QuestionMapper extends BaseMapper<Question> {
 
     Long countTodayQuestions();
 
-    @Select("SELECT * FROM question WHERE course_id = #{courseId} AND is_offline = 0 AND status IN (0, 1) AND id != #{excludeId} AND MATCH(title, content) AGAINST(#{keyword} IN NATURAL LANGUAGE MODE) LIMIT 15")
+    @Select("SELECT * FROM question WHERE course_id = #{courseId} AND is_offline = 0 AND status IN (0, 1) AND (#{excludeId} IS NULL OR id != #{excludeId}) AND MATCH(title, content) AGAINST(#{keyword} IN BOOLEAN MODE) LIMIT 15")
     List<Question> searchSimilar(@Param("courseId") Long courseId, @Param("excludeId") Long excludeId, @Param("keyword") String keyword);
 }

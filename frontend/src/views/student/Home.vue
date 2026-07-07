@@ -18,7 +18,7 @@ const router = useRouter()
 
 const hotQuestions = ref<Question[]>([])
 const latestResources = ref<Resource[]>([])
-const currentCourseId = ref<number | undefined>(undefined)
+const currentCourseIds = ref<number[]>([])
 
 // 资料详情弹窗
 const detailDialogVisible = ref(false)
@@ -44,9 +44,9 @@ function onResourcePreview(resource: Resource) {
 }
 
 async function onResourceCollect(resource: Resource) {
-  try {
-    const res = await userApi.isCollectedAny(2, resource.id)
-    if (res) {
+  const res = await userApi.isCollectedAny(2, resource.id).catch(() => null)
+  if (res) {
+    try {
       await ElMessageBox.confirm('确定取消收藏该资源？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -55,10 +55,10 @@ async function onResourceCollect(resource: Resource) {
       await userApi.removeCollectByTarget(2, resource.id)
       ElMessage.success('已取消收藏')
       fetchLatestResources()
-      return
+    } catch {
+      // 用户取消
     }
-  } catch {
-    // 未收藏或取消失败，继续打开收藏对话框
+    return
   }
   collectTargetType.value = 2
   collectTargetId.value = resource.id
@@ -85,13 +85,13 @@ function getResourceTypeLabel(type: number | null): string {
   return labels[type] || '未知'
 }
 
-async function fetchHotQuestions(courseId?: number) {
+async function fetchHotQuestions(courseIds?: number[]) {
   try {
     const res: any = await qaApi.getQuestionList({
       pageNum: 1,
       pageSize: 4,
       sort: 'hot',
-      courseId,
+      courseIds,
     })
     hotQuestions.value = res.records || []
   } catch {
@@ -99,12 +99,12 @@ async function fetchHotQuestions(courseId?: number) {
   }
 }
 
-async function fetchLatestResources(courseId?: number) {
+async function fetchLatestResources(courseIds?: number[]) {
   try {
     const res: any = await resourceApi.getList({
       pageNum: 1,
       pageSize: 4,
-      courseId,
+      courseIds,
     })
     latestResources.value = res.records || []
   } catch {
@@ -112,10 +112,10 @@ async function fetchLatestResources(courseId?: number) {
   }
 }
 
-function onCourseChange(courseId: number | undefined) {
-  currentCourseId.value = courseId
-  fetchHotQuestions(courseId)
-  fetchLatestResources(courseId)
+function onCourseChange(courseIds: number[]) {
+  currentCourseIds.value = courseIds
+  fetchHotQuestions(courseIds)
+  fetchLatestResources(courseIds)
 }
 
 function goToQaList() {
@@ -140,7 +140,7 @@ onMounted(() => {
       <main class="home-main">
         <section class="welcome-banner">
           <div class="banner-content">
-            <h2 class="banner-title">欢迎来到校园互助答疑</h2>
+            <h2 class="banner-title">欢迎来到校园互助答疑平台</h2>
             <p class="banner-desc">在这里提问、分享、互助成长</p>
             <div class="banner-actions">
               <el-button type="primary" size="large" @click="goToQaList">去提问</el-button>
@@ -277,7 +277,6 @@ onMounted(() => {
   flex: 1;
   margin-left: 220px;
   padding: 24px;
-  max-width: 960px;
 }
 
 .welcome-banner {

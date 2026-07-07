@@ -75,6 +75,7 @@ export interface Resource {
   fileSize: number
   downloadCount: number
   resourceType: number | null
+  isFavorited?: boolean
   isOffline: number
   createTime: string
   fileUrl: string

@@ -10,10 +10,10 @@ import ResourceCard from '@/components/ResourceCard.vue'
 import PreviewDialog from '@/components/PreviewDialog.vue'
 import CollectFolderSelect from '@/components/CollectFolderSelect.vue'
 import FileUpload from '@/components/FileUpload.vue'
+import { userApi } from '@/api/user'
 import { resourceApi } from '@/api/resource'
 import { adminApi } from '@/api/admin'
 import { usePagination } from '@/composables/usePagination'
-import { userApi } from '@/api/user'
 import type { Resource, Course } from '@/types'
 
 const route = useRoute()
@@ -24,6 +24,7 @@ const { pageNum, pageSize, total, reset, handlePageChange, handleSizeChange } =
 const resources = ref<Resource[]>([])
 const courses = ref<Course[]>([])
 const selectedCourseId = ref<number | undefined>(undefined)
+const selectedCourseIds = ref<number[]>([])
 const selectedResourceType = ref<number | undefined>(undefined)
 const searchKeyword = ref('')
 const uploadDialogVisible = ref(false)
@@ -70,7 +71,7 @@ async function fetchResources() {
     const res: any = await resourceApi.getList({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
-      courseId: selectedCourseId.value,
+      courseIds: selectedCourseIds.value,
       keyword: searchKeyword.value || undefined,
       resourceType: selectedResourceType.value,
     })
@@ -83,8 +84,8 @@ async function fetchResources() {
   }
 }
 
-function onCourseFilter(courseId: number | undefined) {
-  selectedCourseId.value = courseId
+function onCourseFilter(courseIds: number[]) {
+  selectedCourseIds.value = [...courseIds]
   reset()
   fetchResources()
 }
@@ -99,8 +100,8 @@ function onSearch() {
   fetchResources()
 }
 
-function onCourseChange(courseId: number | undefined) {
-  selectedCourseId.value = courseId
+function onCourseChange(courseIds: number[]) {
+  selectedCourseIds.value = [...courseIds]
   reset()
   fetchResources()
 }
@@ -126,9 +127,9 @@ function onResourcePreview(resource: Resource) {
 }
 
 async function onResourceCollect(resource: Resource) {
-  try {
-    const res = await userApi.isCollectedAny(2, resource.id)
-    if (res) {
+  const res = await userApi.isCollectedAny(2, resource.id).catch(() => null)
+  if (res) {
+    try {
       await ElMessageBox.confirm('确定取消收藏该资源？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -137,10 +138,10 @@ async function onResourceCollect(resource: Resource) {
       await userApi.removeCollectByTarget(2, resource.id)
       ElMessage.success('已取消收藏')
       fetchResources()
-      return
+    } catch {
+      // 用户取消
     }
-  } catch {
-    // 未收藏或取消失败，继续打开收藏对话框
+    return
   }
   collectTargetType.value = 2
   collectTargetId.value = resource.id
@@ -166,7 +167,6 @@ watch([pageNum, pageSize], () => {
 })
 
 onMounted(() => {
-  fetchCourses()
   // 从URL参数读取keyword
   if (route.query.keyword) {
     searchKeyword.value = route.query.keyword as string
@@ -183,20 +183,6 @@ onMounted(() => {
       <main class="resource-main">
         <div class="resource-toolbar">
           <div class="toolbar-left">
-            <el-select
-              v-model="selectedCourseId"
-              placeholder="全部课程"
-              clearable
-              style="width: 180px"
-              @change="onCourseFilter"
-            >
-              <el-option
-                v-for="c in courses"
-                :key="c.id"
-                :label="c.name"
-                :value="c.id"
-              />
-            </el-select>
             <el-select
               v-model="selectedResourceType"
               placeholder="资料类型"

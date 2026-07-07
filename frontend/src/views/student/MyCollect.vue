@@ -131,7 +131,7 @@ function goToQuestion(id: number) {
 }
 
 function goToResource(id: number) {
-  router.push(`/student/resource`)
+  router.push(`/student/resource/${id}`)
 }
 
 function selectFolder(id: number) {
@@ -193,9 +193,8 @@ onMounted(() => { fetchFolders() })
           <div v-for="item in items" :key="item.relationId" class="collect-item">
             <div class="item-main">
               <h4
-                class="item-title"
-                :class="{ clickable: activeTab === 'question' }"
-                @click="activeTab === 'question' ? goToQuestion(item.targetId) : undefined"
+                class="item-title clickable"
+                @click="activeTab === 'question' ? goToQuestion(item.targetId) : goToResource(item.targetId)"
               >
                 {{ item.title }}
               </h4>

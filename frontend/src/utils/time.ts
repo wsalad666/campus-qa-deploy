@@ -7,6 +7,7 @@ export function parseTime(time: string): Date {
   const [datePart, timePart] = time.split(' ')
   const [y, m, d] = datePart.split('-').map(Number)
   const [hh, mm, ss] = (timePart || '00:00:00').split(':').map(Number)
+  // Backend returns CST time, parse as local time
   return new Date(y, m - 1, d, hh, mm, ss)
 }
 

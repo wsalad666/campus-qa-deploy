@@ -13,7 +13,7 @@ public interface QuestionService {
 
     void publishQuestion(Long userId, QuestionRequest request);
 
-    PageResult<QuestionVO> pageQuestions(Long courseId, String keyword, String sort, Integer pageNum, Integer pageSize, Long currentUserId, Long userId);
+    PageResult<QuestionVO> pageQuestions(List<Long> courseIds, String keyword, String sort, Integer pageNum, Integer pageSize, Long currentUserId, Long userId);
 
     QuestionDetailResponse getQuestionDetail(Long questionId, Long currentUserId);
 

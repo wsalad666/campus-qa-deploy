@@ -53,12 +53,12 @@ public class QuestionController {
             HttpServletRequest httpRequest,
             @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
             @Parameter(description = "每页大小") @RequestParam(defaultValue = "10") Integer pageSize,
-            @Parameter(description = "课程分类ID") @RequestParam(required = false) Long courseId,
+            @Parameter(description = "课程分类ID列表(多选)") @RequestParam(required = false) List<Long> courseIds,
             @Parameter(description = "关键词搜索") @RequestParam(required = false) String keyword,
             @Parameter(description = "排序方式(time/hot)") @RequestParam(defaultValue = "time") String sort,
             @Parameter(description = "用户ID过滤") @RequestParam(required = false) Long userId) {
         Long currentUserId = resolveUserId(httpRequest);
-        return Result.success(questionService.pageQuestions(courseId, keyword, sort, pageNum, pageSize, currentUserId, userId));
+        return Result.success(questionService.pageQuestions(courseIds, keyword, sort, pageNum, pageSize, currentUserId, userId));
     }
 
     @Operation(summary = "问题详情")

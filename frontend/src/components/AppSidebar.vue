@@ -1,7 +1,7 @@
 <template>
   <aside class="app-sidebar">
     <div class="sidebar-header">
-      <span class="sidebar-title">📚 常用课程</span>
+      <span class="sidebar-title">📎 常用课程</span>
       <el-button
         type="primary"
         link
@@ -19,27 +19,26 @@
       </el-button>
     </div>
 
-    <el-menu
-      v-else
-      :default-active="activeCourseId"
-      class="sidebar-menu"
-      @select="handleSelect"
-    >
-      <el-menu-item
+    <div v-else class="sidebar-checkbox-list">
+      <el-checkbox
+        v-model="checkAll"
+        :indeterminate="isIndeterminate"
+        class="check-all-item"
+        @change="handleCheckAll"
+      >
+        全部
+      </el-checkbox>
+      <el-checkbox
         v-for="course in favoriteCourses"
         :key="course.id"
-        :index="String(course.id)"
+        v-model="checkedCourseIds"
+        :value="course.id"
+        class="course-check-item"
+        @change="handleCourseChange"
       >
-        <span class="course-name">{{ course.name }}</span>
-        <el-button
-          class="remove-btn"
-          link
-          :icon="Close"
-          @click.stop="handleRemove(course.id)"
-          title="移除"
-        />
-      </el-menu-item>
-    </el-menu>
+        <span class="course-check-name">{{ course.name }}</span>
+      </el-checkbox>
+    </div>
 
     <!-- 全部课程选择弹窗 -->
     <el-dialog
@@ -70,9 +69,8 @@
     </el-dialog>
   </aside>
 </template>
-
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { Plus, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { adminApi } from '@/api/admin'
@@ -81,17 +79,27 @@ import type { Course } from '@/types'
 import { useUserStore } from '@/stores/user'
 
 const emit = defineEmits<{
-  (e: 'course-change', courseId: number): void
+  (e: 'course-change', courseIds: number[]): void
 }>()
 
 const userStore = useUserStore()
 
 const allCourses = ref<Course[]>([])
 const favoriteCourses = ref<Course[]>([])
-const activeCourseId = ref('')
+const checkedCourseIds = ref<number[]>([])
 const dialogVisible = ref(false)
 const selectedCourseIds = ref<number[]>([])
 const saving = ref(false)
+
+const checkAll = computed({
+  get: () => checkedCourseIds.value.length === favoriteCourses.value.length && favoriteCourses.value.length > 0,
+  set: (_val: boolean) => {}
+})
+
+const isIndeterminate = computed(() => {
+  const len = checkedCourseIds.value.length
+  return len > 0 && len < favoriteCourses.value.length
+})
 
 // 默认热门课程名称（用于新用户预设）
 const DEFAULT_COURSE_NAMES = ['高等数学', '程序设计', '大学英语']
@@ -107,7 +115,6 @@ async function fetchAllCourses() {
 
 async function fetchFavoriteCourses() {
   if (!userStore.isLoggedIn) {
-    // 未登录时显示默认课程
     setDefaultCourses()
     return
   }
@@ -116,22 +123,24 @@ async function fetchFavoriteCourses() {
     if (res && res.length > 0) {
       favoriteCourses.value = res
     } else {
-      // 新用户，自动设置默认课程
       await setDefaultFavoriteCourses()
     }
   } catch {
     setDefaultCourses()
   }
+  // 默认全选
+  checkedCourseIds.value = favoriteCourses.value.map(c => c.id)
+  emit('course-change', [...checkedCourseIds.value])
 }
 
 function setDefaultCourses() {
-  // 从未登录/异常时的降级：从全部课程中匹配默认课程
   const defaults = allCourses.value.filter(c => DEFAULT_COURSE_NAMES.includes(c.name))
   favoriteCourses.value = defaults.length > 0 ? defaults : allCourses.value.slice(0, 3)
+  checkedCourseIds.value = favoriteCourses.value.map(c => c.id)
+  emit('course-change', [...checkedCourseIds.value])
 }
 
 async function setDefaultFavoriteCourses() {
-  // 新用户自动设置默认常用课程
   const defaults = allCourses.value.filter(c => DEFAULT_COURSE_NAMES.includes(c.name))
   const courseIds = defaults.map(c => c.id)
   if (courseIds.length > 0) {
@@ -141,27 +150,37 @@ async function setDefaultFavoriteCourses() {
       return
     } catch { /* ignore */ }
   }
-  // 降级：取前3个
   favoriteCourses.value = allCourses.value.slice(0, 3)
 }
 
-function openDialog() {
-  selectedCourseIds.value = favoriteCourses.value.map(c => c.id)
-  dialogVisible.value = true
+function handleCheckAll(val: boolean) {
+  if (val) {
+    checkedCourseIds.value = favoriteCourses.value.map(c => c.id)
+  } else {
+    checkedCourseIds.value = []
+  }
+  emit('course-change', [...checkedCourseIds.value])
+}
+
+function handleCourseChange() {
+  emit('course-change', [...checkedCourseIds.value])
 }
 
 async function handleSave() {
   saving.value = true
   try {
     if (!userStore.isLoggedIn) {
-      // 未登录，仅本地更新
       favoriteCourses.value = allCourses.value.filter(c => selectedCourseIds.value.includes(c.id))
+      checkedCourseIds.value = favoriteCourses.value.map(c => c.id)
+      emit('course-change', [...checkedCourseIds.value])
       ElMessage.success('已更新常用课程')
       dialogVisible.value = false
       return
     }
     await userApi.updateFavoriteCourses(selectedCourseIds.value)
     favoriteCourses.value = allCourses.value.filter(c => selectedCourseIds.value.includes(c.id))
+    checkedCourseIds.value = favoriteCourses.value.map(c => c.id)
+    emit('course-change', [...checkedCourseIds.value])
     ElMessage.success('已更新常用课程')
     dialogVisible.value = false
   } catch {
@@ -171,26 +190,6 @@ async function handleSave() {
   }
 }
 
-function handleSelect(index: string) {
-  activeCourseId.value = index
-  emit('course-change', Number(index))
-}
-
-async function handleRemove(courseId: number) {
-  const newFavorites = favoriteCourses.value.filter(c => c.id !== courseId)
-  if (!userStore.isLoggedIn) {
-    favoriteCourses.value = newFavorites
-    return
-  }
-  try {
-    await userApi.updateFavoriteCourses(newFavorites.map(c => c.id))
-    favoriteCourses.value = newFavorites
-  } catch {
-    ElMessage.error('移除失败')
-  }
-}
-
-// 监听 dialogVisible 变化，打开时初始化选中项
 watch(dialogVisible, (val) => {
   if (val) {
     selectedCourseIds.value = favoriteCourses.value.map(c => c.id)
@@ -202,6 +201,7 @@ onMounted(async () => {
   await fetchFavoriteCourses()
 })
 </script>
+
 
 <style scoped>
 .app-sidebar {
@@ -249,44 +249,38 @@ onMounted(async () => {
   margin: 0 0 12px;
 }
 
-.sidebar-menu {
-  border-right: none !important;
-  background: transparent;
+.sidebar-checkbox-list {
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
 }
 
-.sidebar-menu .el-menu-item {
-  height: 40px;
-  line-height: 40px;
-  font-size: 14px;
+.check-all-item {
+  margin: 0;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e8eaed;
+  font-weight: 600;
+}
+
+.course-check-item {
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 6px;
+  transition: background 0.2s;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding-right: 8px;
-  border-radius: 8px;
-  margin: 2px 8px;
-  transition: all 0.2s;
 }
 
-.course-name {
+.course-check-item:hover {
+  background: #ecf5ff;
+}
+
+.course-check-name {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.remove-btn {
-  visibility: hidden;
   font-size: 14px;
-  padding: 2px;
-  color: #c0c4cc;
-}
-
-.sidebar-menu .el-menu-item:hover .remove-btn {
-  visibility: visible;
-}
-
-.remove-btn:hover {
-  color: #f56c6c;
 }
 
 .dialog-body {

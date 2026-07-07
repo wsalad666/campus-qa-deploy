@@ -527,9 +527,31 @@ public class AdminServiceImpl implements AdminService {
             default: throw new BusinessException("无效的禁言类型");
         }
 
-        user.setBanEndTime(banEndTime);
-        user.setBanReason(request.getBanReason());
-        userMapper.updateById(user);
+        // 如果用户已有禁言，比较严重程度，取最重处罚
+        LocalDateTime existingBanEnd = user.getBanEndTime();
+        boolean shouldApply = true;
+        if (existingBanEnd != null) {
+            // 当前是临时禁言
+            if (banEndTime == null) {
+                // 新处罚是永久的 -> 升级，应用
+                shouldApply = true;
+            } else if (banEndTime.isAfter(existingBanEnd)) {
+                // 新处罚时间更长 -> 升级，应用
+                shouldApply = true;
+            } else {
+                // 新处罚更轻 -> 不降级，只记录日志
+                shouldApply = false;
+            }
+        } else if (existingBanEnd == null) {
+            // 当前已是永久禁言，不接受降级
+            shouldApply = false;
+        }
+
+        if (shouldApply) {
+            user.setBanEndTime(banEndTime);
+            user.setBanReason(request.getBanReason());
+            userMapper.updateById(user);
+        }
 
         // 记录处罚日志
         UserBanLog log = new UserBanLog();

@@ -20,7 +20,7 @@ export const qaApi = {
   getQuestionList: (params: {
     pageNum: number
     pageSize: number
-    courseId?: number
+    courseId?: number; courseIds?: number[]
     keyword?: string
     sort?: string
     userId?: number

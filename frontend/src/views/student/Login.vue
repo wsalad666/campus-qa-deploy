@@ -107,7 +107,6 @@ async function handleRegister() {
 <template>
   <div class="login-wrapper" :style="{ backgroundImage: `url(${loginBg})` }">
     <div class="login-card">
-      <div class="login-top-bar"></div>
       <h2 class="login-title"><span class="title-icon">🎓</span> <span class="title-text">校园问答平台</span></h2>
       <p class="login-subtitle">知识共享 · 互助成长</p>
       <el-tabs v-model="activeTab" class="login-tabs">
@@ -244,15 +243,6 @@ async function handleRegister() {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
-.login-top-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #4f8ef7, #8b5cf6, #ec4899);
-  border-radius: 16px 16px 0 0;
-}
 
 .title-icon {
   font-size: 28px;

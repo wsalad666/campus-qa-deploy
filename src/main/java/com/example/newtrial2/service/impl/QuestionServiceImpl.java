@@ -77,13 +77,13 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public PageResult<QuestionVO> pageQuestions(Long courseId, String keyword, String sort,
+    public PageResult<QuestionVO> pageQuestions(List<Long> courseIds, String keyword, String sort,
                                                  Integer pageNum, Integer pageSize, Long currentUserId, Long userId) {
         Page<Question> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
 
-        if (courseId != null && courseId > 0) {
-            wrapper.eq(Question::getCourseId, courseId);
+        if (courseIds != null && !courseIds.isEmpty()) {
+            wrapper.in(Question::getCourseId, courseIds);
         }
         wrapper.eq(Question::getIsOffline, 0);
         if (userId != null) {
@@ -524,7 +524,16 @@ public class QuestionServiceImpl implements QuestionService {
         if (searchText.isEmpty()) return List.of();
 
         // 第二层：MySQL FULLTEXT 自然语言检索粗筛，捞15条候选
-        List<Question> candidates = questionMapper.searchSimilar(courseId, excludeId, searchText);
+        // BOOLEAN MODE: add + prefix and * wildcard for each word
+        String ftKeyword = "";
+        for (String word : searchText.split("\s+")) {
+            if (word.length() >= 3) {
+                ftKeyword += "+" + word + "* ";
+            }
+        }
+        ftKeyword = ftKeyword.trim();
+        if (ftKeyword.isEmpty()) return List.of();
+        List<Question> candidates = questionMapper.searchSimilar(courseId, excludeId, ftKeyword);
         if (candidates.isEmpty()) return List.of();
 
         // 第三层：后端加权 N-Gram 精排

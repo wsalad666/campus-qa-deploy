@@ -120,11 +120,16 @@ async function searchSuggestions(queryString: string, cb: (results: SearchSugges
     return
   }
   const keyword = queryString.trim()
+  // 1-2个字符不触发搜索，减少无效请求
+  if (keyword.length <= 2) {
+    cb([])
+    return
+  }
   try {
     const [userRes, qaRes, resourceRes] = await Promise.all([
       userApi.searchUsers(keyword).catch(() => []),
-      qaApi.getQuestionList({ pageNum: 1, pageSize: 5, keyword }).catch(() => ({ records: [] })),
-      resourceApi.getList({ pageNum: 1, pageSize: 5, keyword }).catch(() => ({ records: [] })),
+      qaApi.getQuestionList({ pageNum: 1, pageSize: 3, keyword }).catch(() => ({ records: [] })),
+      resourceApi.getList({ pageNum: 1, pageSize: 3, keyword }).catch(() => ({ records: [] })),
     ])
     const users: User[] = Array.isArray(userRes) ? userRes : []
     const questions: Question[] = (qaRes as any)?.records || []
@@ -150,7 +155,7 @@ async function searchSuggestions(queryString: string, cb: (results: SearchSugges
         id: r.id,
       })),
     ]
-    cb(suggestions)
+    cb(suggestions.slice(0, 9))
   } catch {
     cb([])
   }
@@ -169,7 +174,7 @@ function handleSearchSelect(item: SearchSuggestion) {
 
 function handleSearchEnter() {
   if (!searchKeyword.value.trim()) return
-  router.push(`/student/qa?keyword=${encodeURIComponent(searchKeyword.value.trim())}`)
+  router.push(`/student/search?keyword=${encodeURIComponent(searchKeyword.value.trim())}`)
   searchKeyword.value = ''
 }
 
@@ -299,6 +304,7 @@ onUnmounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.5;
 }
 
 .search-item {

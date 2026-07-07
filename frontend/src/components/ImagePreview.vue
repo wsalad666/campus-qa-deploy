@@ -40,8 +40,13 @@
         </el-button>
       </div>
 
-      <div v-if="images.length > 1" class="preview-counter">
-        {{ currentIndex + 1 }} / {{ images.length }}
+      <div class="preview-footer">
+        <el-button type="primary" size="small" @click="downloadCurrent">
+          <el-icon><Download /></el-icon> 下载图片
+        </el-button>
+        <span v-if="images.length > 1" class="preview-counter">
+          {{ currentIndex + 1 }} / {{ images.length }}
+        </span>
       </div>
     </div>
   </el-dialog>
@@ -89,6 +94,25 @@ function next() {
     currentIndex.value++
   }
 }
+
+async function downloadCurrent() {
+  const url = props.images[currentIndex.value]
+  try {
+    const response = await fetch(url)
+    const blob = await response.blob()
+    const blobUrl = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = blobUrl
+    a.download = url.split('/').pop() || 'image.jpg'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(blobUrl)
+  } catch {
+    // fallback: open in new tab
+    window.open(url, '_blank')
+  }
+}
 </script>
 
 <style scoped>
@@ -122,4 +146,17 @@ function next() {
   font-size: 14px;
   color: #909399;
 }
+.preview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.preview-counter {
+  font-size: 14px;
+  color: #909399;
+}
+
 </style>

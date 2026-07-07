@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -45,13 +46,24 @@ public class ResourceController {
     @Operation(summary = "资源分页检索")
     @GetMapping("/list")
     public Result<PageResult<ResourceVO>> pageResources(
-            @Parameter(description = "课程分类ID") @RequestParam(required = false) Long courseId,
+            HttpServletRequest httpRequest,
+            @Parameter(description = "课程分类ID列表(多选)") @RequestParam(required = false) List<Long> courseIds,
             @Parameter(description = "搜索关键词") @RequestParam(required = false) String keyword,
             @Parameter(description = "资源类型(0=试卷, 1=习题, 2=笔记, 3=课件)") @RequestParam(required = false) Integer resourceType,
             @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
             @Parameter(description = "每页大小") @RequestParam(defaultValue = "10") Integer pageSize,
             @Parameter(description = "用户ID过滤") @RequestParam(required = false) Long userId) {
-        return Result.success(resourceService.pageResources(courseId, pageNum, pageSize, keyword, resourceType, userId));
+        Long currentUserId = (Long) httpRequest.getAttribute("userId");
+        return Result.success(resourceService.pageResources(courseIds, pageNum, pageSize, keyword, resourceType, userId, currentUserId));
+    }
+
+    @Operation(summary = "资源详情")
+    @GetMapping("/detail/{resourceId}")
+    public Result<ResourceVO> getResourceDetail(
+            HttpServletRequest httpRequest,
+            @Parameter(description = "资源ID") @PathVariable Long resourceId) {
+        Long currentUserId = (Long) httpRequest.getAttribute("userId");
+        return Result.success(resourceService.getResourceDetail(resourceId, currentUserId));
     }
 
     @Operation(summary = "资源下载")

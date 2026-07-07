@@ -60,9 +60,9 @@ function onResourcePreview(resource: Resource) {
 }
 
 async function onResourceCollect(resource: Resource) {
-  try {
-    const res = await userApi.isCollectedAny(2, resource.id)
-    if (res) {
+  const res = await userApi.isCollectedAny(2, resource.id).catch(() => null)
+  if (res) {
+    try {
       await ElMessageBox.confirm('确定取消收藏该资源？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -71,10 +71,10 @@ async function onResourceCollect(resource: Resource) {
       await userApi.removeCollectByTarget(2, resource.id)
       ElMessage.success('已取消收藏')
       fetchTabData()
-      return
+    } catch {
+      // 用户取消
     }
-  } catch {
-    // 未收藏或取消失败，继续打开收藏对话框
+    return
   }
   collectTargetType.value = 2
   collectTargetId.value = resource.id
@@ -324,11 +324,17 @@ onMounted(async () => {
 
         <el-tab-pane label="📁 我的资源" name="resources">
           <div v-loading="loading">
-            <el-row :gutter="16">
-              <el-col v-for="r in resources" :key="r.id" :xs="24" :sm="12" :md="8" :lg="6">
-                <ResourceCard :resource="r" show-delete @click="onResourceClick" @delete="handleDeleteResource" @preview="onResourcePreview" @collect="onResourceCollect" />
-              </el-col>
-            </el-row>
+            <ResourceCard
+              v-for="r in resources"
+              :key="r.id"
+              layout="list"
+              :resource="r"
+              show-delete
+              @click="onResourceClick"
+              @delete="handleDeleteResource"
+              @preview="onResourcePreview"
+              @collect="onResourceCollect"
+            />
             <el-empty v-if="!loading && resources.length === 0" description="暂无资源" />
             <Pagination v-if="pag.total.value > pag.pageSize.value"
               :total="pag.total.value" :page-num="pag.pageNum.value" :page-size="pag.pageSize.value"

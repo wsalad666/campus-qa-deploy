@@ -54,6 +54,11 @@ const toolbarConfig: Partial<IToolbarConfig> = {
 
 const editorConfig: Partial<IEditorConfig> = {
   placeholder: '请输入内容...',
+  hoverbarKeys: {
+    text: {
+      menuKeys: ['header1', 'header2', 'header3', 'bold', 'italic', 'underline', 'codeBlock', '|', 'color', 'bgColor'],
+    },
+  },
 }
 
 watch(valueHtml, (val) => {
@@ -82,7 +87,11 @@ onBeforeUnmount(() => {
 .rich-text-editor {
   border: 1px solid #dcdfe6;
   border-radius: 4px;
-  overflow: hidden;
+}
+/* 确保编辑器内下拉面板不被裁剪 */
+.editor-wrapper {
+  position: relative;
+  z-index: 1;
 }
 
 .editor-toolbar {
@@ -90,7 +99,32 @@ onBeforeUnmount(() => {
 }
 
 .editor-body {
-  height: 300px;
+  height: 400px;
   overflow-y: auto;
+}
+/* 确保 wangeditor 下拉和颜色面板不被裁剪 */
+:deep(.w-e-text-container) {
+  min-height: 300px;
+}
+</style>
+
+<style>
+/* 修复 wangeditor 下拉面板和颜色选择器 */
+.w-e-dropdown-panel,
+.w-e-panel-container,
+.w-e-color-panel,
+.w-e-modal {
+  z-index: 99999 !important;
+}
+/* 选中文字弹出的悬浮菜单 */
+.w-e-bar {
+  z-index: 99999 !important;
+}
+/* 对话框不裁剪内容 */
+.el-dialog__body {
+  overflow: visible !important;
+}
+.el-dialog {
+  overflow: visible !important;
 }
 </style>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import AppHeader from '@/components/AppHeader.vue'
 import AppSidebar from '@/components/AppSidebar.vue'
 import Pagination from '@/components/Pagination.vue'
@@ -19,7 +20,9 @@ const { pageNum, pageSize, total, reset, handlePageChange, handleSizeChange } =
 const questions = ref<Question[]>([])
 const courses = ref<Course[]>([])
 const selectedCourseId = ref<number | undefined>(undefined)
+const selectedCourseIds = ref<number[]>([])
 const keyword = ref('')
+const route = useRoute()
 const sort = ref<'time' | 'hot'>('time')
 const loading = ref(false)
 
@@ -55,7 +58,7 @@ async function fetchQuestions() {
     const res: any = await qaApi.getQuestionList({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
-      courseId: selectedCourseId.value,
+      courseIds: selectedCourseIds.value,
       keyword: keyword.value || undefined,
       sort: sort.value,
     })
@@ -68,8 +71,8 @@ async function fetchQuestions() {
   }
 }
 
-function onCourseChangeFromSidebar(courseId: number | undefined) {
-  selectedCourseId.value = courseId
+function onCourseChangeFromSidebar(courseIds: number[]) {
+  selectedCourseIds.value = [...courseIds]
   reset()
   fetchQuestions()
 }
@@ -164,6 +167,10 @@ watch([pageNum, pageSize], () => {
 
 onMounted(() => {
   fetchCourses()
+  // 从URL读取搜索关键词
+  if (route.query.keyword) {
+    keyword.value = route.query.keyword as string
+  }
   fetchQuestions()
 })
 </script>
@@ -176,20 +183,6 @@ onMounted(() => {
       <main class="qalist-main">
         <div class="qalist-toolbar">
           <div class="toolbar-left">
-            <el-select
-              v-model="selectedCourseId"
-              placeholder="全部课程"
-              clearable
-              style="width: 180px"
-              @change="onCourseFilter"
-            >
-              <el-option
-                v-for="c in courses"
-                :key="c.id"
-                :label="c.name"
-                :value="c.id"
-              />
-            </el-select>
             <el-input
               v-model="keyword"
               placeholder="搜索问题..."

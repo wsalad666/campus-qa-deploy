@@ -7,18 +7,18 @@ export const resourceApi = {
   getDetail: (resourceId: number): Promise<any> =>
     request.get('/api/resource/detail/' + resourceId.toString()),
 
-  getList: (params: { pageNum: number; pageSize: number; courseId?: number; keyword?: string; resourceType?: number; userId?: number }): Promise<any> =>
+  getList: (params: { pageNum: number; pageSize: number; courseId?: number; courseIds?: number[]; keyword?: string; resourceType?: number; userId?: number }): Promise<any> =>
     request.get('/api/resource/list', { params }),
 
   getMyResources: (params: { pageNum: number; pageSize: number }): Promise<any> =>
     request.get('/api/resource/my', { params }),
 
   download: (resourceId: number): Promise<Blob> =>
-    request.get('/api/resource/download/' + resourceId.toString(), { responseType: 'blob' }),
+    request.get(`/api/resource/download/${resourceId}`, { responseType: 'blob' }),
 
   getDownloadUrl: (resourceId: number): string =>
-    '/api/resource/download/' + resourceId.toString(),
+    `http://localhost:8080/api/resource/download/${resourceId}`,
 
   deleteResource: (resourceId: number): Promise<any> =>
-    request.delete('/api/resource/' + resourceId.toString()),
+    request.delete(`/api/resource/${resourceId}`),
 }

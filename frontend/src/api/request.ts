@@ -4,6 +4,19 @@ import { ElMessage } from 'element-plus'
 const request = axios.create({
   baseURL: '',
   timeout: 30000,
+  paramsSerializer: (params: Record<string, any>) => {
+    const parts: string[] = []
+    for (const key in params) {
+      const val = params[key]
+      if (val === undefined || val === null) continue
+      if (Array.isArray(val)) {
+        val.forEach((v: any) => parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(v)))
+      } else {
+        parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(val))
+      }
+    }
+    return parts.join('&')
+  },
 })
 
 request.interceptors.request.use(

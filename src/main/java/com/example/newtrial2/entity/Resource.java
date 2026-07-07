@@ -1,4 +1,4 @@
-﻿package com.example.newtrial2.entity;
+package com.example.newtrial2.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;

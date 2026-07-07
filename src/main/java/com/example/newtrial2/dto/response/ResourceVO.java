@@ -46,6 +46,9 @@ public class ResourceVO {
     @Schema(description = "是否下架(0正常 1已下架)")
     private Integer isOffline;
 
+    @Schema(description = "当前用户是否已收藏")
+    private Boolean isFavorited;
+
     @Schema(description = "创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;

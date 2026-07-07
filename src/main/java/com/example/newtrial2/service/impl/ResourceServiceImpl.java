@@ -7,6 +7,8 @@ import com.example.newtrial2.dto.response.PageResult;
 import com.example.newtrial2.dto.response.ResourceVO;
 import com.example.newtrial2.entity.Course;
 import com.example.newtrial2.entity.Resource;
+import com.example.newtrial2.entity.Favorite;
+import com.example.newtrial2.mapper.FavoriteMapper;
 import com.example.newtrial2.entity.User;
 import com.example.newtrial2.exception.BusinessException;
 import com.example.newtrial2.exception.ResourceNotFoundException;
@@ -34,14 +36,16 @@ public class ResourceServiceImpl implements ResourceService {
     private final ResourceMapper resourceMapper;
     private final UserMapper userMapper;
     private final CourseMapper courseMapper;
+    private final FavoriteMapper favoriteMapper;
 
     @Value("${file.upload.path}")
     private String uploadPath;
 
-    public ResourceServiceImpl(ResourceMapper resourceMapper, UserMapper userMapper, CourseMapper courseMapper) {
+    public ResourceServiceImpl(ResourceMapper resourceMapper, UserMapper userMapper, CourseMapper courseMapper, FavoriteMapper favoriteMapper) {
         this.resourceMapper = resourceMapper;
         this.userMapper = userMapper;
         this.courseMapper = courseMapper;
+        this.favoriteMapper = favoriteMapper;
     }
 
     @Override
@@ -86,11 +90,11 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public PageResult<ResourceVO> pageResources(Long courseId, Integer pageNum, Integer pageSize, String keyword, Integer resourceType, Long userId) {
+    public PageResult<ResourceVO> pageResources(List<Long> courseIds, Integer pageNum, Integer pageSize, String keyword, Integer resourceType, Long userId, Long currentUserId) {
         Page<Resource> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Resource> wrapper = new LambdaQueryWrapper<>();
-        if (courseId != null && courseId > 0) {
-            wrapper.eq(Resource::getCourseId, courseId);
+        if (courseIds != null && !courseIds.isEmpty()) {
+            wrapper.in(Resource::getCourseId, courseIds);
         }
         if (userId != null) {
             wrapper.eq(Resource::getUserId, userId);
@@ -107,7 +111,7 @@ public class ResourceServiceImpl implements ResourceService {
 
         List<ResourceVO> records = new ArrayList<>();
         for (Resource r : result.getRecords()) {
-            ResourceVO vo = convertToVO(r);
+            ResourceVO vo = convertToVO(r, currentUserId);
             records.add(vo);
         }
         return new PageResult<>(result.getTotal(), pageNum, pageSize, records);
@@ -124,7 +128,7 @@ public class ResourceServiceImpl implements ResourceService {
 
         List<ResourceVO> records = new ArrayList<>();
         for (Resource r : result.getRecords()) {
-            ResourceVO vo = convertToVO(r);
+            ResourceVO vo = convertToVO(r, userId);
             records.add(vo);
         }
         return new PageResult<>(result.getTotal(), pageNum, pageSize, records);
@@ -135,7 +139,7 @@ public class ResourceServiceImpl implements ResourceService {
     public byte[] downloadResource(Long resourceId, String[] fileName) {
         Resource resource = resourceMapper.selectById(resourceId);
         if (resource == null) {
-            throw new ResourceNotFoundException("资源不存在");
+            throw new ResourceNotFoundException("资源不存在或已下架");
         }
         // 累加下载次数
         resource.setDownloadCount((resource.getDownloadCount() == null ? 0 : resource.getDownloadCount()) + 1);
@@ -152,7 +156,7 @@ public class ResourceServiceImpl implements ResourceService {
         }
     }
 
-    private ResourceVO convertToVO(Resource r) {
+    private ResourceVO convertToVO(Resource r, Long currentUserId) {
         ResourceVO vo = new ResourceVO();
         vo.setId(r.getId());
         vo.setCourseId(r.getCourseId());
@@ -167,6 +171,15 @@ public class ResourceServiceImpl implements ResourceService {
         vo.setCreateTime(r.getCreateTime());
         vo.setFileUrl(r.getFileUrl());
 
+        // Check if current user has favorited this resource
+        if (currentUserId != null) {
+            LambdaQueryWrapper<Favorite> favWrapper = new LambdaQueryWrapper<>();
+            favWrapper.eq(Favorite::getUserId, currentUserId)
+                    .eq(Favorite::getTargetId, r.getId())
+                    .eq(Favorite::getType, 2);
+            vo.setIsFavorited(favoriteMapper.selectCount(favWrapper) > 0);
+        }
+
         User u = userMapper.selectById(r.getUserId());
         if (u != null) {
             vo.setUserNickname(u.getNickname());
@@ -179,8 +192,17 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    @Transactional
-    public void deleteResource(Long userId, Long resourceId) {
+    public ResourceVO getResourceDetail(Long resourceId, Long currentUserId) {
+        Resource resource = resourceMapper.selectById(resourceId);
+        if (resource == null || resource.getIsOffline() == 1) {
+            throw new ResourceNotFoundException("资源不存在或已下架");
+ }
+ return convertToVO(resource, currentUserId);
+ }
+
+ @Override
+ @Transactional
+ public void deleteResource(Long userId, Long resourceId) {
         Resource resource = resourceMapper.selectById(resourceId);
         if (resource == null) {
             throw new BusinessException("资源不存在");
