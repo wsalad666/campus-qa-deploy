@@ -23,4 +23,7 @@ public class LoginResponse {
 
     @Schema(description = "头像URL")
     private String avatar;
+
+    @Schema(description = "个性签名")
+    private String signature;
 }
