@@ -64,13 +64,9 @@
 <script setup lang="ts">
 import { formatDateTime } from '@/utils/time'
 import { ref, computed } from 'vue'
-import { formatDateTime } from '@/utils/time'
 import { ElMessage } from 'element-plus'
-import { formatDateTime } from '@/utils/time'
 import { Star, Download } from '@element-plus/icons-vue'
-import { formatDateTime } from '@/utils/time'
 import { resourceApi } from '@/api/resource'
-import { formatDateTime } from '@/utils/time'
 import type { Resource } from '@/types'
 
 const props = defineProps<{
@@ -146,9 +142,7 @@ async function handleDownload() {
   }
 }
 
-function formatTime(time: string) { return formatDateTime(time) }天前`
-  return d.toLocaleDateString('zh-CN')
-}
+function formatTime(time: string) { return formatDateTime(time) }
 </script>
 
 <style scoped>

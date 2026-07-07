@@ -41,11 +41,8 @@
 <script setup lang="ts">
 import { formatRelativeTime } from '@/utils/time'
 import { computed } from 'vue'
-import { formatRelativeTime } from '@/utils/time'
 import { useRouter } from 'vue-router'
-import { formatRelativeTime } from '@/utils/time'
 import { View, ChatLineSquare, Pointer, Star } from '@element-plus/icons-vue'
-import { formatRelativeTime } from '@/utils/time'
 import type { Question } from '@/types'
 
 const props = defineProps<{
@@ -73,11 +70,7 @@ function resolveAvatarUrl(avatar?: string): string {
   return '' + (avatar.startsWith('/') ? '' : '/') + avatar
 }
 
-function formatTime(time: string) { return formatRelativeTime(time) }分钟前`
-  if (hours < 24) return `${hours}小时前`
-  if (days < 30) return `${days}天前`
-  return d.toLocaleDateString('zh-CN')
-}
+function formatTime(time: string) { return formatRelativeTime(time) }
 </script>
 
 <style scoped>

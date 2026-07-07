@@ -2,7 +2,7 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
 const request = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: '',
   timeout: 30000,
 })
 
@@ -30,8 +30,8 @@ request.interceptors.response.use(
     
     // 如果是 blob 类型（如文件下载），先检查是否为 JSON 错误响应
     if (response.config.responseType === 'blob') {
-      const ct = response.headers['content-type'] || ''
-      if (ct.includes('application/json')) {
+      const contentType = response.headers['content-type'] || ''
+      if (contentType.includes('application/json')) {
         try {
           const text = await response.data.text()
           const data = JSON.parse(text)
@@ -39,7 +39,9 @@ request.interceptors.response.use(
             ElMessage.error(data.message || '下载失败')
             return Promise.reject(new Error(data.message || '下载失败'))
           }
-        } catch { /* 解析失败，继续按文件处理 */ }
+        } catch {
+          // 解析失败，继续按文件处理
+        }
       }
       return response.data
     }
