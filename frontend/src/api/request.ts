@@ -30,7 +30,7 @@ request.interceptors.response.use(
     
     // 如果是 blob 类型（如文件下载），先检查是否为 JSON 错误响应
     if (response.config.responseType === 'blob') {
-      const contentType = response.headers['content-type'] || ''
+      const contentType: string = String(response.headers['content-type'] || '')
       if (contentType.includes('application/json')) {
         try {
           const text = await response.data.text()

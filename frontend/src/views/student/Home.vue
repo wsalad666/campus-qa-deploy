@@ -11,6 +11,7 @@ import PreviewDialog from '@/components/PreviewDialog.vue'
 import CollectFolderSelect from '@/components/CollectFolderSelect.vue'
 import { qaApi } from '@/api/qa'
 import { resourceApi } from '@/api/resource'
+import { userApi } from '@/api/user'
 import type { Question, Resource } from '@/types'
 
 const router = useRouter()
@@ -53,7 +54,7 @@ async function onResourceCollect(resource: Resource) {
       })
       await userApi.removeCollectByTarget(2, resource.id)
       ElMessage.success('已取消收藏')
-      fetchResources()
+      fetchLatestResources()
       return
     }
   } catch {
