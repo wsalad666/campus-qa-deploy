@@ -90,10 +90,21 @@ public class QuestionServiceImpl implements QuestionService {
             wrapper.eq(Question::getUserId, userId);
         }
         if (keyword != null && !keyword.trim().isEmpty()) {
-            wrapper.and(w -> w.like(Question::getTitle, keyword)
-                    .or().like(Question::getContent, keyword));
-        }
-        if ("hot".equals(sort)) {
+            // 同时搜索发布者（昵称/学号）
+            LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
+            userWrapper.like(User::getNickname, keyword)
+                    .or().like(User::getStudentNo, keyword);
+            List<User> matchedUsers = userMapper.selectList(userWrapper);
+            List<Long> matchedUserIds = matchedUsers.stream().map(User::getId).collect(Collectors.toList());
+            
+            wrapper.and(w -> {
+                w.like(Question::getTitle, keyword)
+                 .or().like(Question::getContent, keyword);
+                if (!matchedUserIds.isEmpty()) {
+                    w.or().in(Question::getUserId, matchedUserIds);
+                }
+            });
+        }        if ("hot".equals(sort)) {
             wrapper.orderByDesc(Question::getViewCount, Question::getAnswerCount);
         } else {
             wrapper.orderByDesc(Question::getCreateTime);

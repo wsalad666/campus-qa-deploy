@@ -3,7 +3,7 @@
     <div class="dashboard">
       <el-row :gutter="20">
         <el-col :xs="24" :sm="12" :md="8" v-for="card in cards" :key="card.label">
-          <el-card shadow="hover" class="stat-card">
+          <el-card shadow="hover" class="stat-card" :class="{ clickable: card.route }" @click="goTo(card.route)">
             <div class="stat-card-content">
               <div class="stat-card-left">
                 <div class="stat-card-label">{{ card.label }}</div>
@@ -15,6 +15,7 @@
                 </el-icon>
               </div>
             </div>
+            <div v-if="card.route" class="stat-card-hint">点击查看详情 →</div>
           </el-card>
         </el-col>
       </el-row>
@@ -24,10 +25,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { User, UserFilled, QuestionFilled, Edit, Folder, Download } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
 import type { Statistics } from '@/types'
 import AdminLayout from './AdminLayout.vue'
+
+const router = useRouter()
 
 const statistics = ref<Statistics>({
   totalUsers: 0,
@@ -38,42 +42,52 @@ const statistics = ref<Statistics>({
   totalDownloads: 0,
 })
 
+function goTo(route?: string) {
+  if (route) router.push(route)
+}
+
 const cards = computed(() => [
   {
     label: '总注册学生数',
     value: statistics.value.totalUsers,
     icon: User,
     bgColor: '#409EFF',
+    route: '/admin/users',
   },
   {
     label: '今日新增用户',
     value: statistics.value.todayNewUsers,
     icon: UserFilled,
     bgColor: '#67C23A',
+    route: '/admin/users',
   },
   {
     label: '总提问数量',
     value: statistics.value.totalQuestions,
     icon: QuestionFilled,
     bgColor: '#E6A23C',
+    route: '/admin/questions',
   },
   {
     label: '今日提问数',
     value: statistics.value.todayQuestions,
     icon: Edit,
     bgColor: '#A855F7',
+    route: '/admin/questions',
   },
   {
     label: '总上传资源数量',
     value: statistics.value.totalResources,
     icon: Folder,
     bgColor: '#06B6D4',
+    route: '/admin/resources',
   },
   {
     label: '总下载次数',
     value: statistics.value.totalDownloads,
     icon: Download,
     bgColor: '#F56C6C',
+    route: '/admin/resources',
   },
 ])
 
@@ -94,6 +108,34 @@ onMounted(async () => {
 
 .stat-card {
   margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card.clickable {
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card.clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.stat-card-hint {
+  text-align: center;
+  font-size: 12px;
+  color: #c0c4cc;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #ebeef5;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.stat-card.clickable:hover .stat-card-hint {
+  opacity: 1;
+  color: #409EFF;
 }
 
 .stat-card-content {

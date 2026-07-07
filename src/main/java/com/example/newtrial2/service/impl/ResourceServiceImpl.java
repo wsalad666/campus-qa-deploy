@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ResourceServiceImpl implements ResourceService {
@@ -100,7 +101,19 @@ public class ResourceServiceImpl implements ResourceService {
             wrapper.eq(Resource::getUserId, userId);
         }
         if (keyword != null && !keyword.trim().isEmpty()) {
-            wrapper.like(Resource::getTitle, keyword.trim());
+            // 同时搜索发布者（昵称/学号）
+            LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
+            userWrapper.like(User::getNickname, keyword)
+                    .or().like(User::getStudentNo, keyword);
+            List<User> matchedUsers = userMapper.selectList(userWrapper);
+            List<Long> matchedUserIds = matchedUsers.stream().map(User::getId).collect(Collectors.toList());
+            
+            wrapper.and(w -> {
+                w.like(Resource::getTitle, keyword.trim());
+                if (!matchedUserIds.isEmpty()) {
+                    w.or().in(Resource::getUserId, matchedUserIds);
+                }
+            });
         }
         if (resourceType != null) {
             wrapper.eq(Resource::getResourceType, resourceType);
