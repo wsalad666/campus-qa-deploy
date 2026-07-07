@@ -1,4 +1,4 @@
-package com.example.newtrial2.config;
+﻿package com.example.newtrial2.config;
 
 import com.example.newtrial2.common.AdminAuthInterceptor;
 import com.example.newtrial2.common.JwtAuthInterceptor;
@@ -51,7 +51,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/user/login",
                         "/api/user/profile/*",
                         "/api/qa/question/list",
-                        "/api/qa/question/*",
                         "/api/resource/list",
                         "/api/resource/detail/*",
                         "/api/resource/download/*",
