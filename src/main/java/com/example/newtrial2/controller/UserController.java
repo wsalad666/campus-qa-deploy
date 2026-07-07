@@ -200,17 +200,7 @@ public class UserController {
     }
 
     @Operation(summary = "检查是否已收藏")
-        @Operation(summary = "检查是否已收藏（任意文件夹）")
-    @GetMapping("/collect/check-any")
-    public Result<Boolean> isCollectedAny(
-            HttpServletRequest httpRequest,
-            @Parameter(description = "类型") @RequestParam Integer targetType,
-            @Parameter(description = "目标ID") @RequestParam Long targetId) {
-        Long userId = (Long) httpRequest.getAttribute("userId");
-        return Result.success(collectService.isCollectedAny(userId, targetType, targetId));
-    }
-
-@GetMapping("/collect/check")
+    @GetMapping("/collect/check")
     public Result<Boolean> checkCollected(
             HttpServletRequest httpRequest,
             @Parameter(description = "文件夹ID") @RequestParam Long folderId,
@@ -239,15 +229,22 @@ public class UserController {
         return Result.success();
     }
 
-    @Operation(summary = "鍙栨秷鏀惰棌锛堟寜鐩爣锛?)
     @DeleteMapping("/collect/target")
     public Result<Void> removeCollectByTarget(
             HttpServletRequest httpRequest,
-            @Parameter(description = "绫诲瀷") @RequestParam Integer targetType,
-            @Parameter(description = "鐩爣ID") @RequestParam Long targetId) {
+            @RequestParam Integer targetType,
+            @RequestParam Long targetId) {
         Long userId = (Long) httpRequest.getAttribute("userId");
         collectService.removeCollectByTarget(userId, targetType, targetId);
         return Result.success();
     }
 
+    @GetMapping("/collect/check-any")
+    public Result<Boolean> isCollectedAny(
+            HttpServletRequest httpRequest,
+            @RequestParam Integer targetType,
+            @RequestParam Long targetId) {
+        Long userId = (Long) httpRequest.getAttribute("userId");
+        return Result.success(collectService.isCollectedAny(userId, targetType, targetId));
+    }
 }
