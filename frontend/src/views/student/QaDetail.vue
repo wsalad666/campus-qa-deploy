@@ -458,6 +458,14 @@ onMounted(() => {
                       >
                         设为私密
                       </el-button>
+                      <el-button
+                        type="danger"
+                        size="small"
+                        :loading="questionActionLoading === 'delete'"
+                        @click="handleDeleteQuestion"
+                      >
+                        删除提问
+                      </el-button>
                     </template>
                     <!-- 已设私密 -->
                     <template v-else-if="detail.status === 3">
