@@ -7,7 +7,7 @@ services:
     container_name: campus-qa-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - '3306:3306'
     volumes:
@@ -37,9 +37,9 @@ services:
       DB_PORT: 3306
       DB_NAME: campus_qa
       DB_USERNAME: root
-      DB_PASSWORD: 
-      JWT_SECRET: 
-      ADMIN_JWT_SECRET: 
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
       FILE_UPLOAD_PATH: /app/uploads
     ports:
       - '8080:8080'
