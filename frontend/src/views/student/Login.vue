@@ -70,6 +70,7 @@ async function handleLogin() {
       username: res.username,
       nickname: res.nickname,
       avatar: res.avatar,
+      signature: res.signature,
     } as any)
     ElMessage.success('登录成功')
     router.push('/student/home')
