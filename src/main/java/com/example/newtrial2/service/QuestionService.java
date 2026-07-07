@@ -31,6 +31,10 @@ public interface QuestionService {
 
     void hideQuestion(Long userId, Long questionId);
 
+    void unhideQuestion(Long userId, Long questionId);
+
+    void reopenQuestion(Long userId, Long questionId);
+
     /** 获取相似问题推荐 */
     List<SimilarQuestionVO> getSimilarQuestions(Long courseId, Long excludeId, String title, String content, int limit);
 }

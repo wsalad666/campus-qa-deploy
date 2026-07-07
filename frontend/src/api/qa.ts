@@ -73,6 +73,12 @@ export const qaApi = {
   hideQuestion: (questionId: number): Promise<any> =>
     request.put(`/api/qa/question/${questionId}/hide`),
 
+  unhideQuestion: (questionId: number): Promise<any> =>
+    request.put(`/api/qa/question/${questionId}/unhide`),
+
+  reopenQuestion: (questionId: number): Promise<any> =>
+    request.put(`/api/qa/question/${questionId}/reopen`),
+
   acceptAnswer: (answerId: number): Promise<any> =>
     request.post(`/api/qa/accept/${answerId}`),
 

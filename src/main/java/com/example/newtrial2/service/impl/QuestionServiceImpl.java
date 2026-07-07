@@ -399,6 +399,13 @@ public class QuestionServiceImpl implements QuestionService {
             throw new BusinessException(403, "只有提问者才能采纳回答");
         }
 
+        if (question.getStatus() != null && question.getStatus() == 3) {
+            throw new BusinessException("私密提问无法采纳回答，请先取消私密");
+        }
+        if (question.getStatus() != null && question.getStatus() == 2) {
+            throw new BusinessException("已关闭的提问无法采纳回答，请先重新打开");
+        }
+
         if (answer.getIsAccepted() != null && answer.getIsAccepted() == 1) {
             // 当前回答已采纳 → 取消采纳
             answer.setIsAccepted(0);
@@ -513,6 +520,34 @@ public class QuestionServiceImpl implements QuestionService {
         question.setStatus(3); // 3=私密
         questionMapper.updateById(question);
     }
+    @Override
+    @Transactional
+    public void unhideQuestion(Long userId, Long questionId) {
+        Question question = questionMapper.selectById(questionId);
+        if (question == null) {
+            throw new BusinessException("提问不存在");
+        }
+        if (!question.getUserId().equals(userId)) {
+            throw new BusinessException(403, "无权操作他人提问");
+        }
+        question.setStatus(0); // 0=正常
+        questionMapper.updateById(question);
+    }
+
+    @Override
+    @Transactional
+    public void reopenQuestion(Long userId, Long questionId) {
+        Question question = questionMapper.selectById(questionId);
+        if (question == null) {
+            throw new BusinessException("提问不存在");
+        }
+        if (!question.getUserId().equals(userId)) {
+            throw new BusinessException(403, "无权操作他人提问");
+        }
+        question.setStatus(0); // 0=正常
+        questionMapper.updateById(question);
+    }
+
 
     @Override
     public List<SimilarQuestionVO> getSimilarQuestions(Long courseId, Long excludeId, String title, String content, int limit) {

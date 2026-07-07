@@ -149,6 +149,25 @@ public class QuestionController {
         return Result.success();
     }
 
+    @Operation(summary = "取消私密")
+    @PutMapping("/question/{questionId}/unhide")
+    public Result<Void> unhideQuestion(HttpServletRequest httpRequest,
+                                     @Parameter(description = "提问ID") @PathVariable Long questionId) {
+        Long userId = (Long) httpRequest.getAttribute("userId");
+        questionService.unhideQuestion(userId, questionId);
+        return Result.success();
+    }
+
+    @Operation(summary = "重新打开提问（已关闭后）")
+    @PutMapping("/question/{questionId}/reopen")
+    public Result<Void> reopenQuestion(HttpServletRequest httpRequest,
+                                      @Parameter(description = "提问ID") @PathVariable Long questionId) {
+        Long userId = (Long) httpRequest.getAttribute("userId");
+        questionService.reopenQuestion(userId, questionId);
+        return Result.success();
+    }
+
+
     @Operation(summary = "获取相似问题推荐")
     @GetMapping("/question/similar")
     public Result<List<SimilarQuestionVO>> getSimilarQuestions(

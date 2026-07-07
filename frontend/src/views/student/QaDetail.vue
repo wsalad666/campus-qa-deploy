@@ -46,7 +46,7 @@ const notFound = ref(false)
 const isAdminViewer = localStorage.getItem('userRole') === 'admin'
 
 // 提问管理相关
-const questionActionLoading = ref<'delete' | 'close' | 'hide' | null>(null)
+const questionActionLoading = ref<'delete' | 'close' | 'hide' | 'unhide' | 'reopen' | null>(null)
 
 const isQuestionOwner = computed(() => {
   return userStore.userInfo?.id === detail.value?.userId
@@ -265,6 +265,44 @@ async function handleHideQuestion() {
   }
 }
 
+async function handleReopenQuestion() {
+  if (!detail.value) return
+  try {
+    await ElMessageBox.confirm(
+      '重新打开后，其他用户将可以继续回答。确定要重新打开吗？',
+      '确认重新打开',
+      { confirmButtonText: '确定', cancelButtonText: '取消', type: 'info' }
+    )
+  } catch {
+    return
+  }
+  questionActionLoading.value = 'reopen'
+  try {
+    await qaApi.reopenQuestion(questionId)
+    detail.value.status = 0
+    ElMessage.success('已重新打开')
+  } catch {
+    // error handled by interceptor
+  } finally {
+    questionActionLoading.value = null
+  }
+}
+
+async function handleUnhideQuestion() {
+  if (!detail.value) return
+  questionActionLoading.value = 'unhide'
+  try {
+    await qaApi.unhideQuestion(questionId)
+    detail.value.status = 0
+    ElMessage.success('已取消私密')
+  } catch {
+    // error handled by interceptor
+  } finally {
+    questionActionLoading.value = null
+  }
+}
+
+
 function beforeUpload(rawFile: UploadRawFile) {
   const isImage = rawFile.type === 'image/jpeg' || rawFile.type === 'image/png'
   if (!isImage) {
@@ -409,12 +447,39 @@ onMounted(() => {
 
                   <!-- 提问者管理按钮 -->
                   <template v-if="isQuestionOwner">
+                    <!-- 已关闭 -->
                     <template v-if="detail.status === 2">
                       <el-tag type="info" size="small">已关闭</el-tag>
+                      <el-button
+                        type="success"
+                        size="small"
+                        :loading="questionActionLoading === 'reopen'"
+                        @click="handleReopenQuestion"
+                      >
+                        重新打开
+                      </el-button>
                     </template>
+                    <!-- 已设私密 -->
                     <template v-else-if="detail.status === 3">
                       <el-tag type="warning" size="small">已设为私密</el-tag>
+                      <el-button
+                        type="success"
+                        size="small"
+                        :loading="questionActionLoading === 'unhide'"
+                        @click="handleUnhideQuestion"
+                      >
+                        取消私密
+                      </el-button>
+                      <el-button
+                        type="warning"
+                        size="small"
+                        :loading="questionActionLoading === 'close'"
+                        @click="handleCloseQuestion"
+                      >
+                        关闭提问
+                      </el-button>
                     </template>
+                    <!-- 正常/已解决 且 无其他人回答 -->
                     <template v-else-if="!hasOtherAnswers">
                       <el-button
                         type="danger"
@@ -425,6 +490,7 @@ onMounted(() => {
                         删除提问
                       </el-button>
                     </template>
+                    <!-- 正常/已解决 且 有其他人回答 -->
                     <template v-else>
                       <el-button
                         type="warning"
