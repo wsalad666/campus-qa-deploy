@@ -447,84 +447,30 @@ onMounted(() => {
 
                   <!-- 提问者管理按钮 -->
                   <template v-if="isQuestionOwner">
-                    <!-- 已关闭 -->
-                    <template v-if="detail.status === 2">
-                      <el-tag type="info" size="small">已关闭</el-tag>
-                      <el-button
-                        type="success"
-                        size="small"
-                        :loading="questionActionLoading === 'reopen'"
-                        @click="handleReopenQuestion"
-                      >
-                        重新打开
-                      </el-button>
-                      <el-button
-                        type="info"
-                        size="small"
-                        :loading="questionActionLoading === 'hide'"
-                        @click="handleHideQuestion"
-                      >
-                        设为私密
-                      </el-button>
-                      <el-button
-                        type="danger"
-                        size="small"
-                        :loading="questionActionLoading === 'delete'"
-                        @click="handleDeleteQuestion"
-                      >
-                        删除提问
-                      </el-button>
-                    </template>
-                    <!-- 已设私密 -->
-                    <template v-else-if="detail.status === 3">
-                      <el-tag type="warning" size="small">已设为私密</el-tag>
-                      <el-button
-                        type="success"
-                        size="small"
-                        :loading="questionActionLoading === 'unhide'"
-                        @click="handleUnhideQuestion"
-                      >
-                        取消私密
-                      </el-button>
-                      <el-button
-                        type="warning"
-                        size="small"
-                        :loading="questionActionLoading === 'close'"
-                        @click="handleCloseQuestion"
-                      >
-                        关闭提问
-                      </el-button>
-                    </template>
-                    <!-- 正常/已解决 且 无其他人回答 -->
-                    <template v-else-if="!hasOtherAnswers">
-                      <el-button
-                        type="danger"
-                        size="small"
-                        :loading="questionActionLoading === 'delete'"
-                        @click="handleDeleteQuestion"
-                      >
-                        删除提问
-                      </el-button>
-                    </template>
-                    <!-- 正常/已解决 且 有其他人回答 -->
-                    <template v-else>
-                      <el-button
-                        type="warning"
-                        size="small"
-                        :loading="questionActionLoading === 'close'"
-                        @click="handleCloseQuestion"
-                      >
-                        关闭提问
-                      </el-button>
-                      <el-button
-                        type="info"
-                        size="small"
-                        :loading="questionActionLoading === 'hide'"
-                        @click="handleHideQuestion"
-                      >
-                        设为私密
-                      </el-button>
-                    </template>
+                    <el-button
+                      size="small"
+                      :type="detail.status === 2 ? 'success' : 'warning'"
+                      :loading="questionActionLoading === (detail.status === 2 ? 'reopen' : 'close')"
+                      @click="detail.status === 2 ? handleReopenQuestion() : handleCloseQuestion()"
+                    >
+                      {{ detail.status === 2 ? '打开提问' : '关闭提问' }}
+                    </el-button>
+                    <el-button
+                      size="small"
+                      :type="detail.status === 3 ? 'success' : 'info'"
+                      :loading="questionActionLoading === (detail.status === 3 ? 'unhide' : 'hide')"
+                      @click="detail.status === 3 ? handleUnhideQuestion() : handleHideQuestion()"
+                    >
+                      {{ detail.status === 3 ? '设为公开' : '设为私密' }}
+                    </el-button>
+                    <el-button
+                      type="danger"
+                      size="small"
+                      :loading="questionActionLoading === 'delete'"
+                      @click="handleDeleteQuestion"
+                    >
+                      删除提问
+                    </el-button>
                   </template>
                 </div>
               </div>
